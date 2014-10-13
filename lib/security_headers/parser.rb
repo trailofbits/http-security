@@ -12,7 +12,10 @@ module SecurityHeaders
 
     rule(:security_header) do
       x_frame_options           |
-      strict_transport_security
+      strict_transport_security |
+      x_content_type_options    |
+      x_xss_protection          |
+      cache_control
     end
 
     def self.header_to_sym(header)
@@ -37,6 +40,7 @@ module SecurityHeaders
       end
     end
 
+    # X-Frame-Options
     # Syntax:
     # X-Frame-Options = "DENY"
     #                    / "SAMEORIGIN"
@@ -49,6 +53,7 @@ module SecurityHeaders
       str('deny') | str('sameorigin') | allow_from
     end
 
+    # Strict-Transport-Security
     # Syntax:
     #  Strict-Transport-Security = "Strict-Transport-Security" ":"
     #                              [ directive ]  *( ";" [ directive ] )
@@ -70,6 +75,55 @@ module SecurityHeaders
       (max_age >> (semicolon_sep >> include_subdomains).maybe)
     end
 
+    # X-Content-Type-Options
+    # Syntax:
+    # X-Content-Type-Options: nosniff
+    header_rule('X-Content-Type-Options') do
+      str("nosniff")
+    end
+
+    # X-XSS-Protection
+    # Syntax:
+    # X-Content-Type-Options: < 1 | 0 >
+    #                         /; mode=block
+    # TODO: support report=<domain>
+    header_rule('X-XSS-Protection') do
+      (str("1") | str("0")) >> (semicolon_sep >> x_xss_mode).maybe
+    end
+
+    # Cache-Control
+    # Syntax:
+    #
+    # Cache-Control   = "Cache-Control" ":" 1#cache-directive
+    # cache-directive = cache-request-directive
+    #      | cache-response-directive
+    # cache-request-directive =
+    #        "no-cache"                          ; Section 14.9.1
+    #      | "no-store"                          ; Section 14.9.2
+    #      | "max-age" "=" delta-seconds         ; Section 14.9.3, 14.9.4
+    #      | "max-stale" [ "=" delta-seconds ]   ; Section 14.9.3
+    #      | "min-fresh" "=" delta-seconds       ; Section 14.9.3
+    #      | "no-transform"                      ; Section 14.9.5
+    #      | "only-if-cached"                    ; Section 14.9.4
+    #      | cache-extension                     ; Section 14.9.6
+    #  cache-response-directive =
+    #        "public"                               ; Section 14.9.1
+    #      | "private" [ "=" <"> 1#field-name <"> ] ; Section 14.9.1
+    #      | "no-cache" [ "=" <"> 1#field-name <"> ]; Section 14.9.1
+    #      | "no-store"                             ; Section 14.9.2
+    #      | "no-transform"                         ; Section 14.9.5
+    #      | "must-revalidate"                      ; Section 14.9.4
+    #      | "proxy-revalidate"                     ; Section 14.9.4
+    #      | "max-age" "=" delta-seconds            ; Section 14.9.3
+    #      | "s-maxage" "=" delta-seconds           ; Section 14.9.3
+    #      | cache-extension                        ; Section 14.9.6
+    # cache-extension = token [ "=" ( token | quoted-string ) ]
+    header_rule('Cache-Control') do
+      #TODO
+    end
+
+
+
     #
     # Directive Helpers
     #
@@ -80,9 +134,21 @@ module SecurityHeaders
     rule(:semicolon_sep) { wsp? >> str(';') >> wsp? }
 
     rule(:max_age) do
-      str('max-age') >> wsp? >> str("=") >> wsp? >> digits               |
-      str('max-age') >> wsp? >> str("=") >> s_quote >> digits >> s_quote |
-      str('max-age') >> wsp? >> str("=") >> d_quote >> digits >> d_quote
+      str('max-age') >> equals >> digits                       |
+      str('max-age') >> equals >> s_quote >> digits >> s_quote |
+      str('max-age') >> equals >> d_quote >> digits >> d_quote
+    end
+
+    rule(:include_subdomains) do
+      str("includeSubDomains")
+    end
+
+    rule(:x_xss_mode) do
+      str("mode") >> equals >> str("block")
+    end
+
+    rule(:equals) do
+      wsp? >> str("=") >> wsp?
     end
 
     rule(:s_quote) do
@@ -91,10 +157,6 @@ module SecurityHeaders
 
     rule(:d_quote) do
       wsp? >> str("'") >> wsp?
-    end
-
-    rule(:include_subdomains) do
-      str("includeSubDomains")
     end
 
     #
@@ -128,9 +190,8 @@ module SecurityHeaders
     rule(:lws) { match[" \t"] }
     rule(:crlf) { str("\r\n") }
     rule(:alphanum) { alpha | digit }
-    rule(:lws) { match[" \t"] }
-    #TODO: USE ( SP / HTAB / obs-fold ) from http://tools.ietf.org/html/rfc6454
     rule(:wsp) { str(' ') | str("\t") }
+    rule(:lws) { match[" \t"] }
     rule(:wsp?) { lws.repeat }
 
 
