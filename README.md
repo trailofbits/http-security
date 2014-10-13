@@ -10,6 +10,11 @@ Example
 
   TODO
 
+  Not Internationalized
+
+  X-Frame-Options: http://tools.ietf.org/html/rfc7034#section-2.1
+
+
 Requirements
 ------------
 
