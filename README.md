@@ -3,6 +3,7 @@ Security Headers
 
 [![Code Climate](https://codeclimate.com/github/trailofbits/securityheaders.png)](https://codeclimate.com/github/trailofbits/securityheaders) [![Build Status](https://travis-ci.org/trailofbits/securityheaders.svg)](https://travis-ci.org/trailofbits/securityheaders)
 
+[Security Headers] is a parser for every security-relevant HTTP header.
 
 
 Example
