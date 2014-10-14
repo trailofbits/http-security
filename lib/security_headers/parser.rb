@@ -24,7 +24,7 @@ module SecurityHeaders
     private_class_method :header_to_sym
 
 
-    def self.match_numeric(field_name)
+    def self.numeric_match_rule(field_name)
       name = header_to_sym(field_name)
       rule(:"#{name}") do
         str(field_name) >> equals >> digits                       |
@@ -33,15 +33,6 @@ module SecurityHeaders
       end
     end
 
-    # @param [String] field_name
-    #  Formatted header field-name
-    #
-    # @param [block] block
-    #  Parslet block for evaluating header content
-    #
-    # @return  [Hash{Symbol => Object}]
-    #   The formatted Hash of header field-name/field-content pair
-    #
     def self.header_rule(field_name, &block)
       name = header_to_sym(field_name)
       rule(:"#{name}") do
@@ -129,10 +120,10 @@ module SecurityHeaders
     #      | cache-extension                        ; Section 14.9.6
     # cache-extension = token [ "=" ( token | quoted-string ) ]
     header_rule('Cache-Control') do
-      (match_numeric('max-age')   |
-      match_numeric('max-stale') |
-      match_numeric('min-fresh') |
-      match_numeric('s-maxage')  |
+      max_age                    |
+      max_stale                  |
+      min_fresh                  |
+      s_maxage                   |
       str('no-transform')        |
       str('only-if-cached')      |
       str('cache-extension')     |
@@ -143,41 +134,23 @@ module SecurityHeaders
       str('no-transform')        |
       str('must-revalidate')     |
       str('proxy-revalidate')    |
-      str('cache-extension')).repeat(1)
+      str('cache-extension')
     end
-
-
 
     #
     # Directive Helpers
     #
+    numeric_match_rule('max-age')
+    numeric_match_rule('max-stale')
+    numeric_match_rule('min-fresh')
+    numeric_match_rule('s-maxage')
+
     rule(:allow_from) do
       str('allow-from') >> wsp.repeat(1) >> serialized_origin
     end
 
     rule(:semicolon_sep) { wsp? >> str(';') >> wsp? }
 
-
-
-=begin
-    rule(:max_age) do
-      str('max-age') >> equals >> digits                       |
-      str('max-age') >> equals >> s_quote >> digits >> s_quote |
-      str('max-age') >> equals >> d_quote >> digits >> d_quote
-    end
-
-    rule(:max_stale) do
-      str('max_stale') >> equals >> digits                       |
-      str('max_stale') >> equals >> s_quote >> digits >> s_quote |
-      str('max_stale') >> equals >> d_quote >> digits >> d_quote
-    end
-
-    rule(:min_fresh) do
-      str('min_fresh') >> equals >> digits                       |
-      str('min_fresh') >> equals >> s_quote >> digits >> s_quote |
-      str('min_fresh') >> equals >> d_quote >> digits >> d_quote
-    end
-=end
     rule(:include_subdomains) do
       str("includeSubDomains")
     end
@@ -232,7 +205,6 @@ module SecurityHeaders
     rule(:wsp) { str(' ') | str("\t") }
     rule(:lws) { match[" \t"] }
     rule(:wsp?) { lws.repeat }
-
 
     #
     # URI Elements

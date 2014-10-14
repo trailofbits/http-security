@@ -1,8 +1,6 @@
 require 'spec_helper'
 require 'security_headers/parser'
 
-#TODO -  handle invalid syntax to avoid Parslet::ParseFailed
-
 describe Parser do
   describe 'X-Frames-Options' do
     subject { described_class.new.security_headers }
