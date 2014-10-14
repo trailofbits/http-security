@@ -12,7 +12,10 @@ module SecurityHeaders
 
     rule(:security_header) do
       x_frame_options           |
-      strict_transport_security
+      strict_transport_security |
+      x_content_type_options    |
+      x_xss_protection          |
+      cache_control
     end
 
     def self.header_to_sym(header)
@@ -20,15 +23,16 @@ module SecurityHeaders
     end
     private_class_method :header_to_sym
 
-    # @param [String] field_name
-    #  Formatted header field-name
-    #
-    # @param [block] block
-    #  Parslet block for evaluating header content
-    #
-    # @return  [Hash{Symbol => Object}]
-    #   The formatted Hash of header field-name/field-content pair
-    #
+
+    def self.numeric_match_rule(field_name)
+      name = header_to_sym(field_name)
+      rule(:"#{name}") do
+        str(field_name) >> equals >> digits                       |
+        str(field_name) >> equals >> s_quote >> digits >> s_quote |
+        str(field_name) >> equals >> d_quote >> digits >> d_quote
+      end
+    end
+
     def self.header_rule(field_name, &block)
       name = header_to_sym(field_name)
       rule(:"#{name}") do
@@ -37,6 +41,7 @@ module SecurityHeaders
       end
     end
 
+    # X-Frame-Options
     # Syntax:
     # X-Frame-Options = "DENY"
     #                    / "SAMEORIGIN"
@@ -49,6 +54,7 @@ module SecurityHeaders
       str('deny') | str('sameorigin') | allow_from
     end
 
+    # Strict-Transport-Security
     # Syntax:
     #  Strict-Transport-Security = "Strict-Transport-Security" ":"
     #                              [ directive ]  *( ";" [ directive ] )
@@ -70,19 +76,91 @@ module SecurityHeaders
       (max_age >> (semicolon_sep >> include_subdomains).maybe)
     end
 
+    # X-Content-Type-Options
+    # Syntax:
+    # X-Content-Type-Options: nosniff
+    header_rule('X-Content-Type-Options') do
+      str("nosniff")
+    end
+
+    # X-XSS-Protection
+    # Syntax:
+    # X-Content-Type-Options: < 1 | 0 >
+    #                         /; mode=block
+    # TODO: support report=<domain>
+    header_rule('X-XSS-Protection') do
+      (str("1") | str("0")) >> (semicolon_sep >> x_xss_mode).maybe
+    end
+
+    # Cache-Control
+    # Syntax:
+    #
+    # Cache-Control   = "Cache-Control" ":" 1#cache-directive
+    # cache-directive = cache-request-directive
+    #      | cache-response-directive
+    # cache-request-directive =
+    #        "no-cache"                          ; Section 14.9.1
+    #      | "no-store"                          ; Section 14.9.2
+    #      | "max-age" "=" delta-seconds         ; Section 14.9.3, 14.9.4
+    #      | "max-stale" [ "=" delta-seconds ]   ; Section 14.9.3
+    #      | "min-fresh" "=" delta-seconds       ; Section 14.9.3
+    #      | "no-transform"                      ; Section 14.9.5
+    #      | "only-if-cached"                    ; Section 14.9.4
+    #      | cache-extension                     ; Section 14.9.6
+    #  cache-response-directive =
+    #        "public"                               ; Section 14.9.1
+    #      | "private" [ "=" <"> 1#field-name <"> ] ; Section 14.9.1
+    #      | "no-cache" [ "=" <"> 1#field-name <"> ]; Section 14.9.1
+    #      | "no-store"                             ; Section 14.9.2
+    #      | "no-transform"                         ; Section 14.9.5
+    #      | "must-revalidate"                      ; Section 14.9.4
+    #      | "proxy-revalidate"                     ; Section 14.9.4
+    #      | "max-age" "=" delta-seconds            ; Section 14.9.3
+    #      | "s-maxage" "=" delta-seconds           ; Section 14.9.3
+    #      | cache-extension                        ; Section 14.9.6
+    # cache-extension = token [ "=" ( token | quoted-string ) ]
+    header_rule('Cache-Control') do
+      max_age                    |
+      max_stale                  |
+      min_fresh                  |
+      s_maxage                   |
+      str('no-transform')        |
+      str('only-if-cached')      |
+      str('cache-extension')     |
+      str('public')              |
+      str('private')             | ###TODO: add field-name
+      str('no-cache')            | ###TODO: add field-name
+      str('no-store')            |
+      str('no-transform')        |
+      str('must-revalidate')     |
+      str('proxy-revalidate')    |
+      str('cache-extension')
+    end
+
     #
     # Directive Helpers
     #
+    numeric_match_rule('max-age')
+    numeric_match_rule('max-stale')
+    numeric_match_rule('min-fresh')
+    numeric_match_rule('s-maxage')
+
     rule(:allow_from) do
       str('allow-from') >> wsp.repeat(1) >> serialized_origin
     end
 
     rule(:semicolon_sep) { wsp? >> str(';') >> wsp? }
 
-    rule(:max_age) do
-      str('max-age') >> wsp? >> str("=") >> wsp? >> digits               |
-      str('max-age') >> wsp? >> str("=") >> s_quote >> digits >> s_quote |
-      str('max-age') >> wsp? >> str("=") >> d_quote >> digits >> d_quote
+    rule(:include_subdomains) do
+      str("includeSubDomains")
+    end
+
+    rule(:x_xss_mode) do
+      str("mode") >> equals >> str("block")
+    end
+
+    rule(:equals) do
+      wsp? >> str("=") >> wsp?
     end
 
     rule(:s_quote) do
@@ -91,10 +169,6 @@ module SecurityHeaders
 
     rule(:d_quote) do
       wsp? >> str("'") >> wsp?
-    end
-
-    rule(:include_subdomains) do
-      str("includeSubDomains")
     end
 
     #
@@ -128,11 +202,9 @@ module SecurityHeaders
     rule(:lws) { match[" \t"] }
     rule(:crlf) { str("\r\n") }
     rule(:alphanum) { alpha | digit }
-    rule(:lws) { match[" \t"] }
-    #TODO: USE ( SP / HTAB / obs-fold ) from http://tools.ietf.org/html/rfc6454
     rule(:wsp) { str(' ') | str("\t") }
+    rule(:lws) { match[" \t"] }
     rule(:wsp?) { lws.repeat }
-
 
     #
     # URI Elements

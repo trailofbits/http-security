@@ -1,8 +1,6 @@
 require 'spec_helper'
 require 'security_headers/parser'
 
-#TODO -  handle invalid syntax to avoid Parslet::ParseFailed
-
 describe Parser do
   describe 'X-Frames-Options' do
     subject { described_class.new.security_headers }
@@ -80,7 +78,41 @@ describe Parser do
         {strict_transport_security: "max-age='0'; includeSubDomains"}
       ])
     end
-
   end
 
+  describe 'X-Content-Type-Options' do
+    subject { described_class.new.security_headers }
+
+    it 'accepts nosniff' do
+      header = 'X-Content-Type-Options: nosniff'
+      expect(subject.parse header).to eq([
+        { x_content_type_options: 'nosniff'}
+      ])
+    end
+  end
+
+  describe 'X-XSS-Protection' do
+    subject { described_class.new.security_headers }
+
+    it 'it accepts 1; mode=block' do
+      header = 'X-XSS-Protection: 1; mode=block'
+      expect(subject.parse header).to eq([
+        { x_xss_protection: '1; mode=block' }
+      ])
+    end
+
+    it 'it accepts 0; mode=block' do
+      header = 'X-XSS-Protection: 0; mode=block'
+      expect(subject.parse header).to eq([
+        { x_xss_protection: '0; mode=block' }
+      ])
+    end
+
+    it 'it accepts 1' do
+      header = 'X-XSS-Protection: 1'
+      expect(subject.parse header).to eq([
+        { x_xss_protection: '1' }
+      ])
+    end
+  end
 end

@@ -23,8 +23,8 @@ namespace :alexa do
             site_name = li.css(".desc-container .desc-paragraph a")[0].content
             site_rank = li.css(".count")[0].content
 
-            puts "Resolving #{site_name} ..."
             #TODO
+            puts "Resolving #{site_name} ..."
 
             csv << [site_rank, site_name]
           rescue => exception
