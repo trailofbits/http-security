@@ -23,6 +23,16 @@ module SecurityHeaders
     end
     private_class_method :header_to_sym
 
+
+    def self.match_numeric(field_name)
+      name = header_to_sym(field_name)
+      rule(:"#{name}") do
+        str(field_name) >> equals >> digits                       |
+        str(field_name) >> equals >> s_quote >> digits >> s_quote |
+        str(field_name) >> equals >> d_quote >> digits >> d_quote
+      end
+    end
+
     # @param [String] field_name
     #  Formatted header field-name
     #
@@ -119,7 +129,21 @@ module SecurityHeaders
     #      | cache-extension                        ; Section 14.9.6
     # cache-extension = token [ "=" ( token | quoted-string ) ]
     header_rule('Cache-Control') do
-      #TODO
+      (match_numeric('max-age')   |
+      match_numeric('max-stale') |
+      match_numeric('min-fresh') |
+      match_numeric('s-maxage')  |
+      str('no-transform')        |
+      str('only-if-cached')      |
+      str('cache-extension')     |
+      str('public')              |
+      str('private')             | ###TODO: add field-name
+      str('no-cache')            | ###TODO: add field-name
+      str('no-store')            |
+      str('no-transform')        |
+      str('must-revalidate')     |
+      str('proxy-revalidate')    |
+      str('cache-extension')).repeat(1)
     end
 
 
@@ -133,12 +157,27 @@ module SecurityHeaders
 
     rule(:semicolon_sep) { wsp? >> str(';') >> wsp? }
 
+
+
+=begin
     rule(:max_age) do
       str('max-age') >> equals >> digits                       |
       str('max-age') >> equals >> s_quote >> digits >> s_quote |
       str('max-age') >> equals >> d_quote >> digits >> d_quote
     end
 
+    rule(:max_stale) do
+      str('max_stale') >> equals >> digits                       |
+      str('max_stale') >> equals >> s_quote >> digits >> s_quote |
+      str('max_stale') >> equals >> d_quote >> digits >> d_quote
+    end
+
+    rule(:min_fresh) do
+      str('min_fresh') >> equals >> digits                       |
+      str('min_fresh') >> equals >> s_quote >> digits >> s_quote |
+      str('min_fresh') >> equals >> d_quote >> digits >> d_quote
+    end
+=end
     rule(:include_subdomains) do
       str("includeSubDomains")
     end
