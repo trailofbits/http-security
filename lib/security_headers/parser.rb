@@ -33,6 +33,13 @@ module SecurityHeaders
       end
     end
 
+
+    def self.character_match_rule(name, character)
+      rule(:"#{name}") do
+        wsp? >> str(character) >> wsp?
+      end
+    end
+
     def self.header_rule(field_name, &block)
       name = header_to_sym(field_name)
       rule(:"#{name}") do
@@ -72,8 +79,8 @@ module SecurityHeaders
     # OPTIONAL directives: includeSubdomains
     #
     header_rule('Strict-Transport-Security') do
-      (include_subdomains >> semicolon_sep >> max_age) |
-      (max_age >> (semicolon_sep >> include_subdomains).maybe)
+      (include_subdomains >> semicolon >> max_age) |
+      (max_age >> (semicolon >> include_subdomains).maybe)
     end
 
     # X-Content-Type-Options
@@ -89,24 +96,15 @@ module SecurityHeaders
     #                         /; mode=block
     # TODO: support report=<domain>
     header_rule('X-XSS-Protection') do
-      (str("1") | str("0")) >> (semicolon_sep >> x_xss_mode).maybe
+      (str("1") | str("0")) >> (semicolon >> x_xss_mode).maybe
     end
 
     # Cache-Control
+    # TODO: Parse 'field-name' for private/no-cache
     # Syntax:
     #
     # Cache-Control   = "Cache-Control" ":" 1#cache-directive
-    # cache-directive = cache-request-directive
-    #      | cache-response-directive
-    # cache-request-directive =
-    #        "no-cache"                          ; Section 14.9.1
-    #      | "no-store"                          ; Section 14.9.2
-    #      | "max-age" "=" delta-seconds         ; Section 14.9.3, 14.9.4
-    #      | "max-stale" [ "=" delta-seconds ]   ; Section 14.9.3
-    #      | "min-fresh" "=" delta-seconds       ; Section 14.9.3
-    #      | "no-transform"                      ; Section 14.9.5
-    #      | "only-if-cached"                    ; Section 14.9.4
-    #      | cache-extension                     ; Section 14.9.6
+    # cache-directive = cache-response-directive
     #  cache-response-directive =
     #        "public"                               ; Section 14.9.1
     #      | "private" [ "=" <"> 1#field-name <"> ] ; Section 14.9.1
@@ -120,21 +118,7 @@ module SecurityHeaders
     #      | cache-extension                        ; Section 14.9.6
     # cache-extension = token [ "=" ( token | quoted-string ) ]
     header_rule('Cache-Control') do
-      max_age                    |
-      max_stale                  |
-      min_fresh                  |
-      s_maxage                   |
-      str('no-transform')        |
-      str('only-if-cached')      |
-      str('cache-extension')     |
-      str('public')              |
-      str('private')             | ###TODO: add field-name
-      str('no-cache')            | ###TODO: add field-name
-      str('no-store')            |
-      str('no-transform')        |
-      str('must-revalidate')     |
-      str('proxy-revalidate')    |
-      str('cache-extension')
+      cache_control_response >> (comma >> cache_control_response).repeat
     end
 
     #
@@ -144,12 +128,29 @@ module SecurityHeaders
     numeric_match_rule('max-stale')
     numeric_match_rule('min-fresh')
     numeric_match_rule('s-maxage')
+    character_match_rule('equals', '=')
+    character_match_rule('s_quote', "'")
+    character_match_rule('d_quote', '"')
+    character_match_rule('semicolon', ';')
+    character_match_rule('comma', ',')
+
+    rule(:cache_control_response) do
+      str('public')              |
+      str('private')             |
+      str('no-cache')            |
+      str('no-store')            |
+      str('no-transform')        |
+      str('must-revalidate')     |
+      max_age                    |
+      s_maxage                   |
+      str('only-if-cached')      |
+      str('cache-extension')
+    end
 
     rule(:allow_from) do
       str('allow-from') >> wsp.repeat(1) >> serialized_origin
     end
 
-    rule(:semicolon_sep) { wsp? >> str(';') >> wsp? }
 
     rule(:include_subdomains) do
       str("includeSubDomains")
@@ -157,18 +158,6 @@ module SecurityHeaders
 
     rule(:x_xss_mode) do
       str("mode") >> equals >> str("block")
-    end
-
-    rule(:equals) do
-      wsp? >> str("=") >> wsp?
-    end
-
-    rule(:s_quote) do
-      wsp? >> str('"') >> wsp?
-    end
-
-    rule(:d_quote) do
-      wsp? >> str("'") >> wsp?
     end
 
     #

@@ -2,6 +2,31 @@ require 'spec_helper'
 require 'security_headers/parser'
 
 describe Parser do
+    describe 'General parsing' do
+    subject { described_class.new.security_headers }
+
+    it 'parses excess whitespace' do
+      header = ' X-Frame-Options : sameorigin '
+      expect(subject.parse header).to eq([
+        {x_frame_options: 'sameorigin'}
+      ])
+    end
+
+    it 'handles double quoted directive values' do
+      header = 'Strict-Transport-Security: max-age="0"; includeSubDomains'
+      expect(subject.parse header).to eq([
+        {strict_transport_security: 'max-age="0"; includeSubDomains'}
+      ])
+    end
+
+    it 'handles singled quoted directive values' do
+      header = "Strict-Transport-Security: max-age='0'; includeSubDomains"
+      expect(subject.parse header).to eq([
+        {strict_transport_security: "max-age='0'; includeSubDomains"}
+      ])
+    end
+  end
+
   describe 'X-Frames-Options' do
     subject { described_class.new.security_headers }
 
@@ -21,13 +46,6 @@ describe Parser do
 
     it 'parses sameorigin' do
       header = 'X-Frame-Options: sameorigin'
-      expect(subject.parse header).to eq([
-        {x_frame_options: 'sameorigin'}
-      ])
-    end
-
-    it 'parses excess whitespace' do
-      header = ' X-Frame-Options : sameorigin '
       expect(subject.parse header).to eq([
         {x_frame_options: 'sameorigin'}
       ])
@@ -62,20 +80,6 @@ describe Parser do
       header = 'Strict-Transport-Security: includeSubDomains; max-age=0'
       expect(subject.parse header).to eq([
         {strict_transport_security: 'includeSubDomains; max-age=0'}
-      ])
-    end
-
-    it 'handles double quoted directive values' do
-      header = 'Strict-Transport-Security: max-age="0"; includeSubDomains'
-      expect(subject.parse header).to eq([
-        {strict_transport_security: 'max-age="0"; includeSubDomains'}
-      ])
-    end
-
-    it 'handles singled quoted directive values' do
-      header = "Strict-Transport-Security: max-age='0'; includeSubDomains"
-      expect(subject.parse header).to eq([
-        {strict_transport_security: "max-age='0'; includeSubDomains"}
       ])
     end
   end
@@ -115,4 +119,30 @@ describe Parser do
       ])
     end
   end
+
+  describe 'Cache-Control' do
+    subject { described_class.new.security_headers }
+
+    it 'it accepts private' do
+      header = 'Cache-Control: private'
+      expect(subject.parse header).to eq([
+        { cache_control: 'private' }
+      ])
+    end
+
+    it 'it accepts public, max-age=1' do
+      header = 'Cache-Control: public, max-age=1'
+      expect(subject.parse header).to eq([
+        { cache_control: 'public, max-age=1' }
+      ])
+    end
+
+    it 'it accepts all recommended value: private, max-age=0, no-cache' do
+      header = 'Cache-Control: private, max-age=0, no-cache'
+      expect(subject.parse header).to eq([
+        { cache_control: 'private, max-age=0, no-cache' }
+      ])
+    end
+  end
+
 end
