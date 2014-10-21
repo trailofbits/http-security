@@ -186,6 +186,13 @@ describe Parser do
         { expires: 'Thu Dec 04 16:00:00 2015' }
       ])
     end
+
+    it 'parses asctime-date format #2' do
+      header = 'Expires: Thu Dec  4 16:00:00 2015'
+      expect(subject.parse header).to eq([
+        { expires: 'Thu Dec  4 16:00:00 2015' }
+      ])
+    end
   end
 
 
