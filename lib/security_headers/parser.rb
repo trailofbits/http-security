@@ -1,4 +1,4 @@
-require 'parslet'
+require "parslet"
 module SecurityHeaders
   class Parser < Parslet::Parser
     root :security_headers
@@ -8,16 +8,17 @@ module SecurityHeaders
       header_sep.maybe #>> end_header_delimiter.maybe
     end
 
-    rule(:header_sep) { wsp? >> str('\r\n') >> wsp? }
+    rule(:header_sep) { wsp? >> str("\r\n") >> wsp? }
 
     rule(:security_header) do
-      x_frame_options           |
-      strict_transport_security |
-      x_content_type_options    |
-      x_xss_protection          |
-      cache_control             |
-      pragma                    |
-      expires
+      x_frame_options                   |
+      strict_transport_security         |
+      x_content_type_options            |
+      x_xss_protection                  |
+      cache_control                     |
+      pragma                            |
+      expires                           |
+      x_permitted_cross_domain_policies
     end
 
     def self.header_to_sym(header)
@@ -42,7 +43,7 @@ module SecurityHeaders
     def self.header_rule(field_name, &block)
       name = header_to_sym(field_name)
       rule(:"#{name}") do
-        wsp? >> stri(field_name) >> wsp? >> str(':') >> wsp? >>
+        wsp? >> stri(field_name) >> wsp? >> str(":") >> wsp? >>
         (instance_eval(&block).as(name) | unknown_header) >> wsp?
       end
     end
@@ -56,8 +57,8 @@ module SecurityHeaders
     #          RWS             = 1*( SP / HTAB )
     #                        ; required whitespace
     # Only one can be present
-    header_rule('X-Frame-Options') do
-      stri('deny') | stri('sameorigin') | allow_from
+    header_rule("X-Frame-Options") do
+      stri("deny") | stri("sameorigin") | allow_from
     end
 
     # Strict-Transport-Security
@@ -77,7 +78,7 @@ module SecurityHeaders
     # REQUIRED directives: max-age
     # OPTIONAL directives: includeSubdomains
     #
-    header_rule('Strict-Transport-Security') do
+    header_rule("Strict-Transport-Security") do
       (include_subdomains >> semicolon >> max_age) |
       (max_age >> (semicolon >> include_subdomains).maybe)
     end
@@ -85,7 +86,7 @@ module SecurityHeaders
     # X-Content-Type-Options
     # Syntax:
     # X-Content-Type-Options: nosniff
-    header_rule('X-Content-Type-Options') do
+    header_rule("X-Content-Type-Options") do
       stri("nosniff")
     end
 
@@ -94,12 +95,12 @@ module SecurityHeaders
     # X-Content-Type-Options: < 1 | 0 >
     #                         /; mode=block
     # TODO: support report=<domain>
-    header_rule('X-XSS-Protection') do
+    header_rule("X-XSS-Protection") do
       (str("1") | str("0")) >> (semicolon >> x_xss_mode).maybe
     end
 
     # Cache-Control
-    # TODO: Parse 'field-name' for private/no-cache and support cache-extension
+    # TODO: Parse "field-name" for private/no-cache and support cache-extension
     # Syntax:
     # Cache-Control   = "Cache-Control" ":" 1#cache-directive
     # cache-directive = cache-response-directive
@@ -115,53 +116,69 @@ module SecurityHeaders
     #      | "s-maxage" "=" delta-seconds           ; Section 14.9.3
     #      | cache-extension                        ; Section 14.9.6
     # cache-extension = token [ "=" ( token | quoted-string ) ]
-    header_rule('Cache-Control') do
+    header_rule("Cache-Control") do
       cache_control_values >> (comma >> cache_control_values).repeat
     end
+
+    # X-Permitted-Cross-Domain-Policies
+    # Syntax:
+    # X-Permitted-Cross-Domain-Policies = "none"
+    #                    | master-only
+    #                    | by-content-type
+    #                    | by-ftp-filename
+    #                    | all
+    header_rule("X-Permitted-Cross-Domain-Policies") do
+      stri("none")            |
+      stri("master-only")     |
+      stri("by-content-type") |
+      stri("by-ftp-filename") |
+      stri("all")
+    end
+
 
     # Pragma
     # Syntax:
     # Pragma            = "Pragma" ":" 1#pragma-directive
     # pragma-directive  = "no-cache" | extension-pragma
     # extension-pragma  = token [ "=" ( token | quoted-string ) ]
-    header_rule('Pragma') do
+    header_rule("Pragma") do
       stri("no-cache")
     end
 
     # Expires
     # Syntax:
     # Expires = "Expires" ":" HTTP-date
-    header_rule('Expires') do
+    header_rule("Expires") do
       http_date
     end
 
     #
     # Directive Helpers
     #
-    numeric_match_rule('max-age')
-    numeric_match_rule('max-stale')
-    numeric_match_rule('min-fresh')
-    numeric_match_rule('s-maxage')
-    character_match_rule('equals', '=')
-    character_match_rule('s_quote', "'")
-    character_match_rule('d_quote', '"')
-    character_match_rule('semicolon', ';')
-    character_match_rule('comma', ',')
+    numeric_match_rule("max-age")
+    numeric_match_rule("max-stale")
+    numeric_match_rule("min-fresh")
+    numeric_match_rule("s-maxage")
+    character_match_rule("equals", "=")
+    character_match_rule("s_quote", "'")
+    character_match_rule("d_quote", '"')
+    character_match_rule("semicolon", ";")
+    character_match_rule("comma", ",")
 
     rule(:cache_control_values) do
-      stri('public')          |
-      stri('private')         |
-      stri('no-cache')        |
-      stri('no-store')        |
-      stri('no-transform')    |
-      stri('must-revalidate') |
+      stri("public")          |
+      stri("private")         |
+      stri("no-cache")        |
+      stri("no-store")        |
+      stri("no-transform")    |
+      stri("must-revalidate") |
       max_age                |
       s_maxage               |
-      stri('only-if-cached')
+      stri("only-if-cached")
     end
 
     rule(:allow_from) do
-      stri('allow-from') >> wsp.repeat(1) >> serialized_origin
+      stri("allow-from") >> wsp.repeat(1) >> serialized_origin
     end
 
     rule(:include_subdomains) do
@@ -280,34 +297,34 @@ module SecurityHeaders
     # URI
     #
     rule(:serialized_origin) do
-      scheme >> str(':') >> str('//') >> host_name >>
-      (str(':') >> digits.as(:port)).maybe
+      scheme >> str(":") >> str("//") >> host_name >>
+      (str(":") >> digits.as(:port)).maybe
     end
 
     rule(:uri) {
-      scheme.as(:scheme) >> str(':') >> str('//').maybe >>
-      (user_info.as(:user_info) >> str('@')).maybe >>
+      scheme.as(:scheme) >> str(":") >> str("//").maybe >>
+      (user_info.as(:user_info) >> str("@")).maybe >>
       host_name.as(:host) >>
-      (str(':') >> digits.as(:port)).maybe >>
+      (str(":") >> digits.as(:port)).maybe >>
       uri_path
     }
 
     #
     # Character Classes
     #
-    rule(:digit) { match['0-9'] }
+    rule(:digit) { match["0-9"] }
     rule(:digits) { digit.repeat(1) }
-    rule(:xdigit) { digit | match['a-fA-F'] }
-    rule(:upper) { match['A-Z'] }
-    rule(:lower) { match['a-z'] }
+    rule(:xdigit) { digit | match["a-fA-F"] }
+    rule(:upper) { match["A-Z"] }
+    rule(:lower) { match["a-z"] }
     rule(:alpha) { upper | lower }
     rule(:alnum) { alpha | digit }
-    rule(:cntrl) { match['\x00-\x1f'] }
-    rule(:ascii) { match['\x00-\x7f'] }
+    rule(:cntrl) { match["\x00-\x1f"] }
+    rule(:ascii) { match["\x00-\x7f"] }
     rule(:lws) { match[" \t"] }
     rule(:crlf) { str("\r\n") }
     rule(:alphanum) { alpha | digit }
-    rule(:wsp) { str(' ') | str("\t") }
+    rule(:wsp) { str(" ") | str("\t") }
     rule(:lws) { match[" \t"] }
     rule(:wsp?) { lws.repeat }
 
@@ -315,11 +332,11 @@ module SecurityHeaders
     # URI Elements
     #
     rule(:scheme) do
-      ( alpha | digit | match('[+-.]') ).repeat
+      ( alpha | digit | match("[+-.]") ).repeat
     end
 
     rule(:host_name) do
-      ( alnum | match('[-_.]') ).repeat(1)
+      ( alnum | match("[-_.]") ).repeat(1)
     end
 
     #
