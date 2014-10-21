@@ -12,6 +12,13 @@ describe Parser do
       ])
     end
 
+    it 'is case insensitive' do
+      header = ' X-Frame-OPTIONS : Sameorigin '
+      expect(subject.parse header).to eq([
+        {x_frame_options: 'Sameorigin'}
+      ])
+    end
+
     it 'handles double quoted directive values' do
       header = 'Strict-Transport-Security: max-age="0"; includeSubDomains'
       expect(subject.parse header).to eq([
@@ -144,5 +151,17 @@ describe Parser do
       ])
     end
   end
+
+  describe 'Pragma' do
+    subject { described_class.new.security_headers }
+
+    it 'no-cache' do
+      header = 'pragma: no-cache'
+      expect(subject.parse header).to eq([
+        { pragma: 'no-cache' }
+      ])
+    end
+  end
+
 
 end
