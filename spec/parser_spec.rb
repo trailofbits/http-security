@@ -155,10 +155,35 @@ describe Parser do
   describe 'Pragma' do
     subject { described_class.new.security_headers }
 
-    it 'no-cache' do
+    it 'accepts no-cache' do
       header = 'pragma: no-cache'
       expect(subject.parse header).to eq([
         { pragma: 'no-cache' }
+      ])
+    end
+  end
+
+  describe 'Expires' do
+    subject { described_class.new.security_headers }
+
+    it 'parses rfc1123-date' do
+      header = 'Expires: Thu, 04 Dec 2015 16:00:00 GMT'
+      expect(subject.parse header).to eq([
+        { expires: 'Thu, 04 Dec 2015 16:00:00 GMT' }
+      ])
+    end
+
+    it 'parses rfc850-date' do
+      header = 'Expires: Thursday, 04-Dec-15 16:00:00 GMT'
+      expect(subject.parse header).to eq([
+        { expires: 'Thursday, 04-Dec-15 16:00:00 GMT' }
+      ])
+    end
+
+    it 'parses asctime-date format #1' do
+      header = 'Expires: Thu Dec 04 16:00:00 2015'
+      expect(subject.parse header).to eq([
+        { expires: 'Thu Dec 04 16:00:00 2015' }
       ])
     end
   end

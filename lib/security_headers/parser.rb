@@ -16,7 +16,8 @@ module SecurityHeaders
       x_content_type_options    |
       x_xss_protection          |
       cache_control             |
-      pragma
+      pragma                    |
+      expires
     end
 
     def self.header_to_sym(header)
@@ -100,7 +101,6 @@ module SecurityHeaders
     # Cache-Control
     # TODO: Parse 'field-name' for private/no-cache and support cache-extension
     # Syntax:
-    #
     # Cache-Control   = "Cache-Control" ":" 1#cache-directive
     # cache-directive = cache-response-directive
     #  cache-response-directive =
@@ -119,11 +119,20 @@ module SecurityHeaders
       cache_control_values >> (comma >> cache_control_values).repeat
     end
 
+    # Pragma
+    # Syntax:
     # Pragma            = "Pragma" ":" 1#pragma-directive
     # pragma-directive  = "no-cache" | extension-pragma
     # extension-pragma  = token [ "=" ( token | quoted-string ) ]
     header_rule('Pragma') do
       stri("no-cache")
+    end
+
+    # Expires
+    # Syntax:
+    # Expires = "Expires" ":" HTTP-date
+    header_rule('Expires') do
+      http_date
     end
 
     #
@@ -155,13 +164,116 @@ module SecurityHeaders
       stri('allow-from') >> wsp.repeat(1) >> serialized_origin
     end
 
-
     rule(:include_subdomains) do
       stri("includeSubDomains")
     end
 
     rule(:x_xss_mode) do
       stri("mode") >> equals >> stri("block")
+    end
+
+    # HTTP-date    = rfc1123-date | rfc850-date | asctime-date
+    # rfc1123-date = wkday "," SP date1 SP time SP "GMT"
+    # rfc850-date  = weekday "," SP date2 SP time SP "GMT"
+    # asctime-date = wkday SP date3 SP time SP 4DIGIT
+    # date1        = 2DIGIT SP month SP 4DIGIT
+    #               ; day month year (e.g., 02 Jun 1982)
+    # date2        = 2DIGIT "-" month "-" 2DIGIT
+    #               ; day-month-year (e.g., 02-Jun-82)
+    # date3        = month SP ( 2DIGIT | ( SP 1DIGIT ))
+    #               ; month day (e.g., Jun  2)
+    # time         = 2DIGIT ":" 2DIGIT ":" 2DIGIT
+    #               ; 00:00:00 - 23:59:59
+    # wkday        = "Mon" | "Tue" | "Wed"
+    #             | "Thu" | "Fri" | "Sat" | "Sun"
+    # weekday      = "Monday" | "Tuesday" | "Wednesday"
+    #             | "Thursday" | "Friday" | "Saturday" | "Sunday"
+    # month        = "Jan" | "Feb" | "Mar" | "Apr"
+    #             | "May" | "Jun" | "Jul" | "Aug"
+    #             | "Sep" | "Oct" | "Nov" | "Dec"
+    rule(:http_date) do
+      rfc1123_date |
+      rfc850_date  |
+      asctime_date
+    end
+
+    rule(:rfc1123_date) do
+      wkday >> str(",") >> wsp >> date1 >> wsp >> time >> wsp >> str("GMT")
+    end
+
+    rule(:rfc850_date) do
+      weekday >> str(",") >> wsp >> date2 >> wsp >> time >> wsp >> str("GMT")
+    end
+
+    rule(:asctime_date) do
+      wkday >> wsp >> date3 >> wsp >> time >> wsp >> four_digit
+    end
+
+    #day month year (e.g., 02 Jun 1982)
+    rule(:date1) do
+      two_digit >> wsp >> month >> wsp >> four_digit
+    end
+
+    #day-month-year (e.g., 02-Jun-82)
+    rule(:date2) do
+      two_digit >> str("-") >> month >> str("-") >> two_digit
+    end
+
+    #month day (e.g., Jun  2)
+    rule(:date3) do
+      month >> wsp >> (two_digit | (wsp >> one_digit))
+    end
+
+    #00:00:00 - 23:59:59
+    rule(:time) do
+      two_digit >> str(":") >> two_digit >> str(":") >> two_digit
+    end
+
+    rule(:four_digit) do
+      digit.repeat(4,4)
+    end
+
+    rule(:two_digit) do
+      digit.repeat(2,2)
+    end
+
+    rule(:one_digit) do
+      digit.repeat(1,1)
+    end
+
+    rule(:wkday) do
+      stri("Mon") |
+      stri("Tue") |
+      stri("Wed") |
+      stri("Thu") |
+      stri("Fri") |
+      stri("Sat") |
+      stri("Sun")
+    end
+
+    rule(:weekday) do
+      stri("Monday")    |
+      stri("Tuesday")   |
+      stri("Wednesday") |
+      stri("Thursday")  |
+      stri("Friday")    |
+      stri("Saturday")  |
+      stri("Sunday")
+    end
+
+    rule(:month) do
+      stri("Jan") |
+      stri("Feb") |
+      stri("Mar") |
+      stri("Apr") |
+      stri("May") |
+      stri("Jun") |
+      stri("Jul") |
+      stri("Aug") |
+      stri("Sep") |
+      stri("Oct") |
+      stri("Nov") |
+      stri("Dec")
     end
 
     #
