@@ -4,8 +4,9 @@ module SecurityHeaders
     root :security_headers
 
     rule(:security_headers) do
-      (security_header).repeat >>
-      header_sep.maybe #>> end_header_delimiter.maybe
+      #(security_header).repeat >> header_sep.maybe #>> end_header_delimiter.maybe
+      #security_header >> (header_sep.maybe >> security_header).repeat(0)
+      security_header >> (header_sep >> security_header).repeat(0)
     end
 
     rule(:header_sep) { wsp? >> str("\r\n") >> wsp? }
