@@ -31,17 +31,31 @@ describe Parser do
       expect(subject.parse header).to eq({strict_transport_security: "max-age='0'; includeSubDomains"})
     end
 
-    it "it handles multiple headers" do
+    it "handles multiple headers" do
       header = "X-XSS-Protection: 1; mode=block\r\nX-Frame-Options: SAMEORIGIN"
       expect(subject.parse header).to eq([
         {x_xss_protection: "1; mode=block"},
         {x_frame_options: "SAMEORIGIN"}
       ])
     end
+
+    it "handles googles headers" do
+      header = #"Expires: -1\r\n" \
+      "Server: gws\r\n" \
+      "Cache-Control: private, max-age=0\r\n" \
+      "Content-Type: text/html; charset=ISO-8859-1\r\n" \
+      "Alternate-Protocol: 80:quic,p=0.01\r\n" \
+      "X-XSS-Protection: 1; mode=block\r\n" \
+      "X-Frame-Options: SAMEORIGIN\r\n"
+      "Alternate-Protocol: 80:quic,p=0.01\r\n" \
+      "Transfer-Encoding: chunked\r\n\r\n"
+      expect(subject.parse header).to eq([
+        {cache_control: "private, max-age=0"},
+        {x_xss_protection: "1; mode=block"},
+        {x_frame_options: "SAMEORIGIN"}
+      ])
+    end
   end
-
-
-
 
   describe "X-Frames-Options" do
     subject { described_class.new.security_headers }

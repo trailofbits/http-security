@@ -4,11 +4,10 @@ module SecurityHeaders
     root :security_headers
 
     rule(:security_headers) do
-      #(security_header).repeat >> header_sep.maybe #>> end_header_delimiter.maybe
-      #security_header >> (header_sep.maybe >> security_header).repeat(0)
-      security_header >> (header_sep >> security_header).repeat(0)
+      security_header >> (header_sep >> security_header).repeat(0) >> (header_sep | end_header_delimiter).maybe
     end
 
+    rule(:end_header_delimiter) { wsp? >> str("\r\n\r\n") }
     rule(:header_sep) { wsp? >> str("\r\n") >> wsp? }
 
     rule(:security_header) do
@@ -20,7 +19,8 @@ module SecurityHeaders
       pragma                            |
       expires                           |
       x_permitted_cross_domain_policies |
-      content_security_policy
+      content_security_policy           |
+      ignore_nonsecurity_header
     end
 
     def self.header_to_sym(header)
@@ -175,6 +175,7 @@ module SecurityHeaders
     # Expires
     # Syntax:
     # Expires = "Expires" ":" HTTP-date
+    #TODO handle integer values
     header_rule("Expires") do
       http_date
     end
@@ -199,8 +200,8 @@ module SecurityHeaders
       stri("no-store")        |
       stri("no-transform")    |
       stri("must-revalidate") |
-      max_age                |
-      s_maxage               |
+      max_age                 |
+      s_maxage                |
       stri("only-if-cached")
     end
 
@@ -285,6 +286,10 @@ module SecurityHeaders
       digit.repeat(1,1)
     end
 
+    rule(:ignore_nonsecurity_header) do
+      (header_sep.absent? >> any).repeat(1)
+    end
+
     rule(:wkday) do
       stri("Mon") |
       stri("Tue") |
@@ -364,11 +369,11 @@ module SecurityHeaders
     rule(:csp_value) { csp_value_char.repeat }
 
     #CSP tokens are any character except space, comma and semicolon
-    #TODO blacklist bad chars instead of whitelist valid chars
     rule(:csp_directive_char) do
       alpha | digit | str("-")
     end
 
+    #TODO blacklist bad chars instead of whitelist valid chars
     rule(:csp_value_char) do
       match["\x00-\x1f"] |
       match["\x21-\x2b"] |
@@ -391,7 +396,6 @@ module SecurityHeaders
     # Misc
     #
     rule(:unknown_header) { match["^=; \t"].repeat(1) }
-    rule(:end_header_delimiter) { stri.match("\r\n\r\n") }
 
     def stri(str)
       key_chars = str.split(//)
