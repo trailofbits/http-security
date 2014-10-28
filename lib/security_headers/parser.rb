@@ -4,11 +4,11 @@ module SecurityHeaders
     root :security_headers
 
     rule(:security_headers) do
-      security_header >> (header_sep >> security_header).repeat(0) >> (header_sep | end_header_delimiter).maybe
+      security_header >> (header_sep >> security_header).repeat(0) >> end_header_delimiter
     end
 
-    rule(:end_header_delimiter) { wsp? >> str("\r\n\r\n") }
-    rule(:header_sep) { wsp? >> str("\r\n") >> wsp? }
+    rule(:end_header_delimiter) { str("\r\n\r\n") }
+    rule(:header_sep) { str("\r\n") }
 
     rule(:security_header) do
       x_frame_options                   |
@@ -287,7 +287,7 @@ module SecurityHeaders
     end
 
     rule(:ignore_nonsecurity_header) do
-      (header_sep.absent? >> any).repeat(1)
+      ((header_sep | end_header_delimiter).absent? >> any).repeat(1).as(:excluded)
     end
 
     rule(:wkday) do

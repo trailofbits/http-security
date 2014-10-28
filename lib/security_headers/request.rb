@@ -1,14 +1,14 @@
 require 'security_headers/parser'
-require 'net/http'
+require 'curb'
 require 'tempfile'
 
 module SecurityHeaders
   class Request
 
-    def self.head(domain)
+    def self.headers(domain)
       begin
-        head = Curl::Easy.http_head("http://www.google.com")
-        new(Parser.new.parse(h.header_str))
+        head = Curl::Easy.http_head(domain)
+        new(Parser.new.parse(head.header_str))
       rescue => error
         puts error
       end
