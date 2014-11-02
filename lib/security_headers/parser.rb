@@ -203,7 +203,7 @@ module SecurityHeaders
     rule(:cache_control_values) do
       stri("public")          |
       stri("private")         |
-      stri("no-cache")        |
+      no_cache                |
       stri("no-store")        |
       stri("no-transform")    |
       stri("must-revalidate") |
@@ -373,8 +373,57 @@ module SecurityHeaders
     # obs-text       = %x80-FF
     # quoted-pair    = "\" ( WSP / VCHAR / obs-text )
     #
-    rule(:cache_control_extension) { ( cc_token >> equals >> cc_token) }
-    rule(:cc_token) { cc_token_char.repeat }
+    rule(:cache_control_extension) { ( extension_token >> equals >> extension_token) }
+    rule(:extension_token) { cc_token_char.repeat }
+
+    #"no-cache" [ "=" <"> 1#field-name <"> ];
+    rule(:no_cache) do
+      stri("no-cache") >> ( equals >> field_name ).maybe
+    end
+
+    rule(:field_name) do
+      valid_field_name | ( d_quote >> valid_field_name >> d_quote )
+    end
+
+    rule(:valid_field_name) do
+      stri("Access-Control-Allow-Origin")   |
+      stri("Accept-Ranges")             |
+      stri("Age")                       |
+      stri("Allow")                     |
+      stri("Cache-Control")             |
+      stri("Connection")                |
+      stri("Content-Encoding")          |
+      stri("Content-Language")          |
+      stri("Content-Length")            |
+      stri("Content-Location")          |
+      stri("Content-MD5")               |
+      stri("Content-Disposition")       |
+      stri("Content-Range")             |
+      stri("Content-Type")              |
+      stri("ETag")                      |
+      stri("Expires")                   |
+      stri("Last-Modified")             |
+      stri("Link")                      |
+      stri("Location")                  |
+      stri("P3P")                       |
+      stri("Pragma")                    |
+      stri("Proxy-Authenticate")        |
+      stri("Refresh")                   |
+      stri("Retry-After")               |
+      stri("Server")                    |
+      stri("Set-Cookie")                |
+      stri("Status")                    |
+      stri("Strict-Transport-Security") |
+      stri("Trailer")                   |
+      stri("Transfer-Encoding")         |
+      stri("Upgrade")                   |
+      stri("Vary")                      |
+      stri("Via")                       |
+      stri("Warning")                   |
+      stri("WWW-Authenticate")          |
+      stri("X-Frame-Options")
+    end
+
 
     #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
     rule(:cc_token_char) do

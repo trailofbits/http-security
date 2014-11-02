@@ -81,17 +81,28 @@ describe Parser do
       ])
     end
 
-
-    it "handles excluded headers" do
-      header = "Server: cloudflare-nginx\r\nDate: Tue, 28 Oct 2014 03:02:03 GMT\r\nContent-Type: text/html\r\nConnection: keep-alive\r\nExpires: Thu, 01 Jan 1970 00:00:01 GMT\r\nLocation: https://www.bitwage.biz\r\nCF-RAY: 1803e470066f06b5-EWR\r\n\r\n"
+    it "handles stackoverflow headers" do
+      header = "HTTP/1.1 200 OK\r\n" \
+      "Cache-Control: public, no-cache=\"Set-Cookie\", max-age=1\r\n" \
+      "Content-Length: 237857\r\n" \
+      "Content-Type: text/html; charset=utf-8\r\n" \
+      "Expires: Sun, 02 Nov 2014 19:32:00 GMT\r\n" \
+      "Last-Modified: Sun, 02 Nov 2014 19:31:00 GMT\r\n" \
+      "Vary: *\r\n" \
+      "X-Frame-Options: SAMEORIGIN\r\n" \
+      "Set-Cookie: prov=23def875-91bc-4a7b-a255-15544b6389d8; domain=.stackoverflow.com; expires=Fri, 01-Jan-2055 00:00:00 GMT; path=/; HttpOnly\r\n" \
+      "Date: Sun, 02 Nov 2014 19:31:58 GMT\r\n\r\n"
       expect(subject.parse header).to eq([
-        {:excluded=>"Server: cloudflare-nginx"},
-        {:excluded=>"Date: Tue, 28 Oct 2014 03:02:03 GMT"},
-        {:excluded=>"Content-Type: text/html"},
-        {:excluded=>"Connection: keep-alive"},
-        {:expires=>"Thu, 01 Jan 1970 00:00:01 GMT"},
-        {:excluded=>"Location: https://www.bitwage.biz"},
-        {:excluded=>"CF-RAY: 1803e470066f06b5-EWR"}
+        {:excluded=>"HTTP/1.1 200 OK"},
+        {cache_control: "public, no-cache=\"Set-Cookie\", max-age=1"},
+        {excluded: "Content-Length: 237857"},
+        {excluded: "Content-Type: text/html; charset=utf-8"},
+        {expires: "Sun, 02 Nov 2014 19:32:00 GMT"},
+        {excluded: "Last-Modified: Sun, 02 Nov 2014 19:31:00 GMT"},
+        {excluded: "Vary: *"},
+        {:x_frame_options=>"SAMEORIGIN"},
+        {excluded: "Set-Cookie: prov=23def875-91bc-4a7b-a255-15544b6389d8; domain=.stackoverflow.com; expires=Fri, 01-Jan-2055 00:00:00 GMT; path=/; HttpOnly"},
+        {excluded: "Date: Sun, 02 Nov 2014 19:31:58 GMT"},
       ])
     end
 
