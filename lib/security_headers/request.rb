@@ -4,8 +4,7 @@ require 'tempfile'
 
 module SecurityHeaders
   class Request
-
-    def self.headers(domain)
+    def self.parse_headers(domain)
       begin
         head = Curl::Easy.http_head(domain)
         new(Parser.new.parse(head.header_str))
@@ -13,6 +12,5 @@ module SecurityHeaders
         puts error
       end
     end
-
   end
 end

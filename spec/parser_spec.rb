@@ -58,6 +58,35 @@ describe Parser do
       ])
     end
 
+    it "handles complex headers" do
+      header = "HTTP/1.1 200 OK\r\n" \
+      "Date: Sun, 02 Nov 2014 16:04:05 GMT\r\n" \
+      "Server: Apache\r\n" \
+      "Set-Cookie: PHPSESSID=icn5fbnvnaju862a6upqm18f83; path=/; secure; HttpOnly\r\n" \
+      "Expires: Thu, 19 Nov 1981 08:52:00 GMT\r\n" \
+      "Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0\r\n" \
+      "Pragma: no-cache\r\n" \
+      "X-UA-Compatible: IE=edge,chrome=1\r\n" \
+      "Link: <https://prd.unicarehealth.com.au/>; rel=shortlink\r\n" \
+      "Strict-Transport-Security: max-age=31536000; includeSubdomains\r\n" \
+      "X-Frame-Options: DENY\r\n" \
+      "X-Content-Type-Options: nosniff\r\n" \
+      "X-XSS-Protection: 1; mode=block\r\n" \
+      "X-Permitted-Cross-Domain-Policies: master-only\r\n" \
+      "Content-Security-Policy-Report-Only: font-src data: 'self' https://fonts.gstatic.com ; img-src data: 'self' ; script-src 'unsafe-eval' 'unsafe-inline' 'self' ; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com ; connect-src 'self' ; default-src 'none' ; reflected-xss block; report-uri /wp-content/themes/scunicare/wac/csp-report.php?ro=false;\r\n" \
+      "Content-Type: text/html; charset=UTF-8\r\n\r\n"
+      expect(subject.parse header).to eq([
+        {:excluded=>"Server: gws"},
+        {cache_control: "private, max-age=0"},
+        {:excluded=>"Content-Type: text/html; charset=ISO-8859-1"},
+        {:excluded=>"Alternate-Protocol: 80:quic,p=0.01"},
+        {x_xss_protection: "1; mode=block"},
+        {x_frame_options: "SAMEORIGIN"},
+        {:excluded=>"Transfer-Encoding: chunked"}
+      ])
+    end
+
+
     it "handles excluded headers" do
       header = "Server: cloudflare-nginx\r\nDate: Tue, 28 Oct 2014 03:02:03 GMT\r\nContent-Type: text/html\r\nConnection: keep-alive\r\nExpires: Thu, 01 Jan 1970 00:00:01 GMT\r\nLocation: https://www.bitwage.biz\r\nCF-RAY: 1803e470066f06b5-EWR\r\n\r\n"
       expect(subject.parse header).to eq([
@@ -333,7 +362,21 @@ describe Parser do
         { content_security_policy: "default-src 'self'; img-src 'self' data:; media-src mediastream:" }
       )
     end
-
-
   end
+
+  context "Alexa Top 100", :gauntlet do
+    require 'csv'
+
+    path = File.expand_path('../data/alexa.csv', __FILE__)
+    csv  = CSV.new(open(path), headers: false)
+
+    csv.each do |row|
+      rank, domain = row
+
+      it "should parse #{domain}" do
+        expect { subject.parse(domain) }.to_not raise_error
+      end
+    end
+  end
+
 end

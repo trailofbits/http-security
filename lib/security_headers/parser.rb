@@ -203,7 +203,8 @@ module SecurityHeaders
       stri("must-revalidate") |
       max_age                 |
       s_maxage                |
-      stri("only-if-cached")
+      stri("only-if-cached")  |
+      cache_control_extension
     end
 
     rule(:allow_from) do
@@ -362,6 +363,51 @@ module SecurityHeaders
     rule(:wsp?) { lws.repeat }
 
     #
+    # Cache Control Helpers
+    #
+    rule(:cache_control_extension) { cc_value >> (wsp >> cc_token).repeat(0) }
+
+
+    #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
+=begin
+tspecials      = "(" | ")" | "<" | ">" | "@"
+               | "," | ";" | ":" | "\" | <">
+               | "/" | "[" | "]" | "?" | "="
+               | "{" | "}" | SP | HT
+HT= 9
+SP= 20
+" = 22
+( = 28
+) = 29
+, = 2c
+/ = 2f
+; = 3a
+: = 3b
+< = 3c
+= = 3d
+> = 3e
+? = 3f
+@ = 40
+[ = 5b
+\ = 5c
+] = 5d
+{ = 7b
+} = 7d
+=end
+    rule(:cc_token) do
+      match["\x21"] |
+      match["\x23-\x27"] |
+      match["\x2a-\x2b"] |
+      match["\x2d-\x2e"] |
+      match["\x30-\x39"] |
+      match["\x41-\x5a"] |
+      match["\x5e-\x7a"] |
+      match["\x7c"]      |
+      match["\x7e"]
+    end
+
+
+    #
     # CSP Helpers
     #
     rule(:csp_value_sequence) { csp_value >> (wsp >> csp_value).repeat(0) }
@@ -377,9 +423,11 @@ module SecurityHeaders
     #TODO blacklist bad chars instead of whitelist valid chars
     rule(:csp_value_char) do
       match["\x21-\x2b"] |
-      match["\x2d-\x3a"] |
-      match["\x3c-\x7e"]
+      match["\x2d-\x3b"] |
+      match["\x3d"] |
+      match["\x3f-\x7e"]
     end
+
 
     #
     # URI Elements
