@@ -20,9 +20,9 @@ describe Parser do
     end
 
     it "handles double quoted directive values" do
-      header = 'Strict-Transport-Security: max-age="0"; includeSubDomains\r\n\r\n'
+      header = "Strict-Transport-Security: max-age=\"0\"; includeSubDomains\r\n\r\n"
       expect(subject.parse header).to eq(
-        {strict_transport_security: 'max-age="0"; includeSubDomains'}
+        {strict_transport_security: "max-age=\"0\"; includeSubDomains"}
       )
     end
 
@@ -45,13 +45,16 @@ describe Parser do
       "Content-Type: text/html; charset=ISO-8859-1\r\n" \
       "Alternate-Protocol: 80:quic,p=0.01\r\n" \
       "X-XSS-Protection: 1; mode=block\r\n" \
-      "X-Frame-Options: SAMEORIGIN\r\n"
-      "Alternate-Protocol: 80:quic,p=0.01\r\n" \
+      "X-Frame-Options: SAMEORIGIN\r\n" \
       "Transfer-Encoding: chunked\r\n\r\n"
       expect(subject.parse header).to eq([
+        {:excluded=>"Server: gws"},
         {cache_control: "private, max-age=0"},
+        {:excluded=>"Content-Type: text/html; charset=ISO-8859-1"},
+        {:excluded=>"Alternate-Protocol: 80:quic,p=0.01"},
         {x_xss_protection: "1; mode=block"},
-        {x_frame_options: "SAMEORIGIN"}
+        {x_frame_options: "SAMEORIGIN"},
+        {:excluded=>"Transfer-Encoding: chunked"}
       ])
     end
 

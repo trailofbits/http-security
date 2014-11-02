@@ -4,7 +4,8 @@ module SecurityHeaders
     root :security_headers
 
     rule(:security_headers) do
-      security_header >> (header_sep >> security_header).repeat(0) >> end_header_delimiter
+      security_header >> ( end_header_delimiter.absent? >> (header_sep >> security_header)).repeat(0) >>
+        end_header_delimiter
     end
 
     rule(:end_header_delimiter) { str("\r\n\r\n") }
@@ -287,7 +288,7 @@ module SecurityHeaders
     end
 
     rule(:ignore_nonsecurity_header) do
-      ((header_sep | end_header_delimiter).absent? >> any).repeat(1).as(:excluded)
+      (header_sep.absent? >> any).repeat(1).as(:excluded)
     end
 
     rule(:wkday) do
@@ -375,10 +376,9 @@ module SecurityHeaders
 
     #TODO blacklist bad chars instead of whitelist valid chars
     rule(:csp_value_char) do
-      match["\x00-\x1f"] |
       match["\x21-\x2b"] |
       match["\x2d-\x3a"] |
-      match["\x3c-\x7f"]
+      match["\x3c-\x7e"]
     end
 
     #
