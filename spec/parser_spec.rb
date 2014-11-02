@@ -1,5 +1,6 @@
 require "spec_helper"
 require "security_headers/parser"
+require 'curb'
 
 describe Parser do
     describe "General parsing" do
@@ -368,7 +369,8 @@ describe Parser do
       rank, domain = row
 
       it "should parse #{domain}" do
-        expect { subject.parse(domain) }.to_not raise_error
+        head = Curl::Easy.http_head("http://#{domain}")
+        expect { subject.parse(head.header_str) }.to_not raise_error
       end
     end
   end

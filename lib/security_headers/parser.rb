@@ -361,46 +361,22 @@ module SecurityHeaders
     rule(:alnum) { alpha | digit }
     rule(:cntrl) { match["\x00-\x1f"] }
     rule(:ascii) { match["\x00-\x7f"] }
-    rule(:lws) { match[" \t"] }
-    rule(:crlf) { str("\r\n") }
     rule(:alphanum) { alpha | digit }
-    rule(:wsp) { str(" ") | str("\t") }
-    rule(:lws) { match[" \t"] }
-    rule(:wsp?) { lws.repeat }
+    rule(:wsp) { match[" \t"] }
+    rule(:wsp?) { wsp.repeat }
 
     #
     # Cache Control Helpers
+    # TODO: quoted-string
+    # quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
+    # qdtext         = OWS / %x21 / %x23-5B / %x5D-7E / obs-text
+    # obs-text       = %x80-FF
+    # quoted-pair    = "\" ( WSP / VCHAR / obs-text )
     #
     rule(:cache_control_extension) { ( cc_token >> equals >> cc_token) }
     rule(:cc_token) { cc_token_char.repeat }
 
-
     #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
-=begin
-tspecials      = "(" | ")" | "<" | ">" | "@"
-               | "," | ";" | ":" | "\" | <">
-               | "/" | "[" | "]" | "?" | "="
-               | "{" | "}" | SP | HT
-HT= 9
-SP= 20
-" = 22
-( = 28
-) = 29
-, = 2c
-/ = 2f
-; = 3a
-: = 3b
-< = 3c
-= = 3d
-> = 3e
-? = 3f
-@ = 40
-[ = 5b
-\ = 5c
-] = 5d
-{ = 7b
-} = 7d
-=end
     rule(:cc_token_char) do
       match["\x21"]      |
       match["\x23-\x27"] |
@@ -412,7 +388,6 @@ SP= 20
       match["\x7c"]      |
       match["\x7e"]
     end
-
 
     #
     # CSP Helpers
