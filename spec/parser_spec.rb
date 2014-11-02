@@ -59,30 +59,24 @@ describe Parser do
     end
 
     it "handles complex headers" do
-      header = "HTTP/1.1 200 OK\r\n" \
-      "Date: Sun, 02 Nov 2014 16:04:05 GMT\r\n" \
-      "Server: Apache\r\n" \
-      "Set-Cookie: PHPSESSID=icn5fbnvnaju862a6upqm18f83; path=/; secure; HttpOnly\r\n" \
-      "Expires: Thu, 19 Nov 1981 08:52:00 GMT\r\n" \
-      "Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0\r\n" \
-      "Pragma: no-cache\r\n" \
-      "X-UA-Compatible: IE=edge,chrome=1\r\n" \
-      "Link: <https://prd.unicarehealth.com.au/>; rel=shortlink\r\n" \
-      "Strict-Transport-Security: max-age=31536000; includeSubdomains\r\n" \
-      "X-Frame-Options: DENY\r\n" \
-      "X-Content-Type-Options: nosniff\r\n" \
-      "X-XSS-Protection: 1; mode=block\r\n" \
-      "X-Permitted-Cross-Domain-Policies: master-only\r\n" \
-      "Content-Security-Policy-Report-Only: font-src data: 'self' https://fonts.gstatic.com ; img-src data: 'self' ; script-src 'unsafe-eval' 'unsafe-inline' 'self' ; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com ; connect-src 'self' ; default-src 'none' ; reflected-xss block; report-uri /wp-content/themes/scunicare/wac/csp-report.php?ro=false;\r\n" \
-      "Content-Type: text/html; charset=UTF-8\r\n\r\n"
+      header = "HTTP/1.1 200 OK\r\nDate: Sun, 02 Nov 2014 16:04:05 GMT\r\nServer: Apache\r\nSet-Cookie: PHPSESSID=icn5fbnvnaju862a6upqm18f83; path=/; secure; HttpOnly\r\nExpires: Thu, 19 Nov 1981 08:52:00 GMT\r\nCache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0\r\nPragma: no-cache\r\nX-UA-Compatible: IE=edge,chrome=1\r\nLink: <https://prd.unicarehealth.com.au/>; rel=shortlink\r\nStrict-Transport-Security: max-age=31536000; includeSubdomains\r\nX-Frame-Options: DENY\r\nX-Content-Type-Options: nosniff\r\nX-XSS-Protection: 1; mode=block\r\nX-Permitted-Cross-Domain-Policies: master-only\r\nContent-Security-Policy-Report-Only: font-src data: 'self' https://fonts.gstatic.com ; img-src data: 'self' ; script-src 'unsafe-eval' 'unsafe-inline' 'self' ; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com ; connect-src 'self' ; default-src 'none' ; reflected-xss block; report-uri /wp-content/themes/scunicare/wac/csp-report.php?ro=false;\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"
       expect(subject.parse header).to eq([
-        {:excluded=>"Server: gws"},
-        {cache_control: "private, max-age=0"},
-        {:excluded=>"Content-Type: text/html; charset=ISO-8859-1"},
-        {:excluded=>"Alternate-Protocol: 80:quic,p=0.01"},
+        {:excluded=>"HTTP/1.1 200 OK"},
+        {:excluded=>"Date: Sun, 02 Nov 2014 16:04:05 GMT"},
+        {:excluded=>"Server: Apache"},
+        {:excluded=>"Set-Cookie: PHPSESSID=icn5fbnvnaju862a6upqm18f83; path=/; secure; HttpOnly"},
+        {:expires=>"Thu, 19 Nov 1981 08:52:00 GMT"},
+        {cache_control: "no-store, no-cache, must-revalidate, post-check=0, pre-check=0"},
+        {:pragma => "no-cache"},
+        {:excluded=>"X-UA-Compatible: IE=edge,chrome=1"},
+        {:excluded=>"Link: <https://prd.unicarehealth.com.au/>; rel=shortlink"},
+        {:strict_transport_security=>"max-age=31536000; includeSubdomains"},
+        {:x_frame_options=>"DENY"},
+        {:x_content_type_options=>"nosniff"},
         {x_xss_protection: "1; mode=block"},
-        {x_frame_options: "SAMEORIGIN"},
-        {:excluded=>"Transfer-Encoding: chunked"}
+        {:x_permitted_cross_domain_policies=>"master-only"},
+        {:content_security_policy_report_only=>"font-src data: 'self' https://fonts.gstatic.com ; img-src data: 'self' ; script-src 'unsafe-eval' 'unsafe-inline' 'self' ; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com ; connect-src 'self' ; default-src 'none' ; reflected-xss block; report-uri /wp-content/themes/scunicare/wac/csp-report.php?ro=false;"},
+        {:excluded=>"Content-Type: text/html; charset=UTF-8"}
       ])
     end
 

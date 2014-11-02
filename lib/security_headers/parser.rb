@@ -12,15 +12,16 @@ module SecurityHeaders
     rule(:header_sep) { str("\r\n") }
 
     rule(:security_header) do
-      x_frame_options                   |
-      strict_transport_security         |
-      x_content_type_options            |
-      x_xss_protection                  |
-      cache_control                     |
-      pragma                            |
-      expires                           |
-      x_permitted_cross_domain_policies |
-      content_security_policy           |
+      x_frame_options                     |
+      strict_transport_security           |
+      x_content_type_options              |
+      x_xss_protection                    |
+      cache_control                       |
+      pragma                              |
+      expires                             |
+      x_permitted_cross_domain_policies   |
+      content_security_policy             |
+      content_security_policy_report_only |
       ignore_nonsecurity_header
     end
 
@@ -160,6 +161,11 @@ module SecurityHeaders
     #   3. Return the set of directives.
     # TODO: avoid duplicates (step 2.5)
     header_rule("Content-Security-Policy") do
+      csp_directive >> wsp >> csp_value_sequence >> ( str(";") >> wsp >>
+        csp_directive >> wsp >> csp_value_sequence ).repeat(0) >> semicolon.maybe
+    end
+
+    header_rule("Content-Security-Policy-Report-Only") do
       csp_directive >> wsp >> csp_value_sequence >> ( str(";") >> wsp >>
         csp_directive >> wsp >> csp_value_sequence ).repeat(0) >> semicolon.maybe
     end
@@ -365,7 +371,8 @@ module SecurityHeaders
     #
     # Cache Control Helpers
     #
-    rule(:cache_control_extension) { cc_value >> (wsp >> cc_token).repeat(0) }
+    rule(:cache_control_extension) { ( cc_token >> equals >> cc_token) }
+    rule(:cc_token) { cc_token_char.repeat }
 
 
     #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
@@ -394,14 +401,14 @@ SP= 20
 { = 7b
 } = 7d
 =end
-    rule(:cc_token) do
-      match["\x21"] |
+    rule(:cc_token_char) do
+      match["\x21"]      |
       match["\x23-\x27"] |
       match["\x2a-\x2b"] |
       match["\x2d-\x2e"] |
       match["\x30-\x39"] |
       match["\x41-\x5a"] |
-      match["\x5e-\x7a"] |
+      match["#{Regexp.escape("\x5f")}-\x7a"] |
       match["\x7c"]      |
       match["\x7e"]
     end
