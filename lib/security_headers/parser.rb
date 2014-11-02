@@ -12,15 +12,16 @@ module SecurityHeaders
     rule(:header_sep) { str("\r\n") }
 
     rule(:security_header) do
-      x_frame_options                   |
-      strict_transport_security         |
-      x_content_type_options            |
-      x_xss_protection                  |
-      cache_control                     |
-      pragma                            |
-      expires                           |
-      x_permitted_cross_domain_policies |
-      content_security_policy           |
+      x_frame_options                     |
+      strict_transport_security           |
+      x_content_type_options              |
+      x_xss_protection                    |
+      cache_control                       |
+      pragma                              |
+      expires                             |
+      x_permitted_cross_domain_policies   |
+      content_security_policy             |
+      content_security_policy_report_only |
       ignore_nonsecurity_header
     end
 
@@ -164,6 +165,11 @@ module SecurityHeaders
         csp_directive >> wsp >> csp_value_sequence ).repeat(0) >> semicolon.maybe
     end
 
+    header_rule("Content-Security-Policy-Report-Only") do
+      csp_directive >> wsp >> csp_value_sequence >> ( str(";") >> wsp >>
+        csp_directive >> wsp >> csp_value_sequence ).repeat(0) >> semicolon.maybe
+    end
+
     # Pragma
     # Syntax:
     # Pragma            = "Pragma" ":" 1#pragma-directive
@@ -197,13 +203,14 @@ module SecurityHeaders
     rule(:cache_control_values) do
       stri("public")          |
       stri("private")         |
-      stri("no-cache")        |
+      no_cache                |
       stri("no-store")        |
       stri("no-transform")    |
       stri("must-revalidate") |
       max_age                 |
       s_maxage                |
-      stri("only-if-cached")
+      stri("only-if-cached")  |
+      cache_control_extension
     end
 
     rule(:allow_from) do
@@ -354,12 +361,82 @@ module SecurityHeaders
     rule(:alnum) { alpha | digit }
     rule(:cntrl) { match["\x00-\x1f"] }
     rule(:ascii) { match["\x00-\x7f"] }
-    rule(:lws) { match[" \t"] }
-    rule(:crlf) { str("\r\n") }
     rule(:alphanum) { alpha | digit }
-    rule(:wsp) { str(" ") | str("\t") }
-    rule(:lws) { match[" \t"] }
-    rule(:wsp?) { lws.repeat }
+    rule(:wsp) { match[" \t"] }
+    rule(:wsp?) { wsp.repeat }
+
+    #
+    # Cache Control Helpers
+    # TODO: quoted-string
+    # quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
+    # qdtext         = OWS / %x21 / %x23-5B / %x5D-7E / obs-text
+    # obs-text       = %x80-FF
+    # quoted-pair    = "\" ( WSP / VCHAR / obs-text )
+    #
+    rule(:cache_control_extension) { ( extension_token >> equals >> extension_token) }
+    rule(:extension_token) { cc_token_char.repeat }
+
+    #"no-cache" [ "=" <"> 1#field-name <"> ];
+    rule(:no_cache) do
+      stri("no-cache") >> ( equals >> field_name ).maybe
+    end
+
+    rule(:field_name) do
+      valid_field_name | ( d_quote >> valid_field_name >> d_quote )
+    end
+
+    rule(:valid_field_name) do
+      stri("Access-Control-Allow-Origin")   |
+      stri("Accept-Ranges")             |
+      stri("Age")                       |
+      stri("Allow")                     |
+      stri("Cache-Control")             |
+      stri("Connection")                |
+      stri("Content-Encoding")          |
+      stri("Content-Language")          |
+      stri("Content-Length")            |
+      stri("Content-Location")          |
+      stri("Content-MD5")               |
+      stri("Content-Disposition")       |
+      stri("Content-Range")             |
+      stri("Content-Type")              |
+      stri("ETag")                      |
+      stri("Expires")                   |
+      stri("Last-Modified")             |
+      stri("Link")                      |
+      stri("Location")                  |
+      stri("P3P")                       |
+      stri("Pragma")                    |
+      stri("Proxy-Authenticate")        |
+      stri("Refresh")                   |
+      stri("Retry-After")               |
+      stri("Server")                    |
+      stri("Set-Cookie")                |
+      stri("Status")                    |
+      stri("Strict-Transport-Security") |
+      stri("Trailer")                   |
+      stri("Transfer-Encoding")         |
+      stri("Upgrade")                   |
+      stri("Vary")                      |
+      stri("Via")                       |
+      stri("Warning")                   |
+      stri("WWW-Authenticate")          |
+      stri("X-Frame-Options")
+    end
+
+
+    #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
+    rule(:cc_token_char) do
+      match["\x21"]      |
+      match["\x23-\x27"] |
+      match["\x2a-\x2b"] |
+      match["\x2d-\x2e"] |
+      match["\x30-\x39"] |
+      match["\x41-\x5a"] |
+      match["#{Regexp.escape("\x5f")}-\x7a"] |
+      match["\x7c"]      |
+      match["\x7e"]
+    end
 
     #
     # CSP Helpers
@@ -377,9 +454,11 @@ module SecurityHeaders
     #TODO blacklist bad chars instead of whitelist valid chars
     rule(:csp_value_char) do
       match["\x21-\x2b"] |
-      match["\x2d-\x3a"] |
-      match["\x3c-\x7e"]
+      match["\x2d-\x3b"] |
+      match["\x3d"] |
+      match["\x3f-\x7e"]
     end
+
 
     #
     # URI Elements
