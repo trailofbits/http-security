@@ -81,7 +81,8 @@ module SecurityHeaders
     #
     # REQUIRED directives: max-age
     # OPTIONAL directives: includeSubdomains
-    #
+    # FIXME: This is incorrect
+    # TODO: generalize logic and include tokens/quoted-string
     header_rule("Strict-Transport-Security") do
       (include_subdomains >> semicolon >> max_age) |
       (max_age >> (semicolon >> include_subdomains).maybe)
@@ -98,13 +99,11 @@ module SecurityHeaders
     # Syntax:
     # X-Content-Type-Options: < 1 | 0 >
     #                         /; mode=block
-    # TODO: support report=<domain>
     header_rule("X-XSS-Protection") do
       (str("1") | str("0")) >> (semicolon >> x_xss_mode).maybe
     end
 
     # Cache-Control
-    # TODO: Parse "field-name" for private/no-cache and support cache-extension
     # Syntax:
     # Cache-Control   = "Cache-Control" ":" 1#cache-directive
     # cache-directive = cache-response-directive
@@ -176,15 +175,16 @@ module SecurityHeaders
     # pragma-directive  = "no-cache" | extension-pragma
     # extension-pragma  = token [ "=" ( token | quoted-string ) ]
     header_rule("Pragma") do
-      stri("no-cache")
+      stri("no-cache") | header_extension
     end
 
     # Expires
     # Syntax:
     # Expires = "Expires" ":" HTTP-date
-    #TODO handle integer values
+    # HTTP/1.1 clients and caches MUST treat other invalid date formats,
+    # especially including the value "0", as in the past (i.e., "already expired").
     header_rule("Expires") do
-      http_date
+      http_date | digits | (str("-") >> digits)
     end
 
     #
@@ -202,7 +202,7 @@ module SecurityHeaders
 
     rule(:cache_control_values) do
       stri("public")          |
-      stri("private")         |
+      cc_private              |
       no_cache                |
       stri("no-store")        |
       stri("no-transform")    |
@@ -210,7 +210,7 @@ module SecurityHeaders
       max_age                 |
       s_maxage                |
       stri("only-if-cached")  |
-      cache_control_extension
+      header_extension
     end
 
     rule(:allow_from) do
@@ -367,18 +367,48 @@ module SecurityHeaders
 
     #
     # Cache Control Helpers
-    # TODO: quoted-string
     # quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
     # qdtext         = OWS / %x21 / %x23-5B / %x5D-7E / obs-text
     # obs-text       = %x80-FF
     # quoted-pair    = "\" ( WSP / VCHAR / obs-text )
     #
-    rule(:cache_control_extension) { ( extension_token >> equals >> extension_token) }
-    rule(:extension_token) { cc_token_char.repeat }
+    rule(:header_extension) { ( extension_token >> equals >> ( extension_token | quoted_string) ) }
+    rule(:extension_token) { extension_token_char.repeat }
+
+    rule(:quoted_string) do
+      d_quote >> quoted_string_text >> d_quote
+    end
+
+    rule(:quoted_string_text) do
+      qdtext | quoted_pair
+    end
+
+
+    rule(:qdtext) do
+      ( wsp | match["\x21"] | match["\x23-\x5B"] | match["\x5D-\x7E"] | obs_text).repeat(1)
+    end
+
+
+    rule(:quoted_pair) do
+      (wsp | obs_text | vchar).repeat(1)
+    end
+
+    rule(:vchar) do
+      match["\x20-\x7f"]
+    end
+
+    rule(:obs_text) do
+      match["\x80-\xFF"]
+    end
 
     #"no-cache" [ "=" <"> 1#field-name <"> ];
     rule(:no_cache) do
       stri("no-cache") >> ( equals >> field_name ).maybe
+    end
+
+    #"private" [ "=" <"> 1#field-name <"> ];
+    rule(:cc_private) do
+      stri("private") >> ( equals >> field_name ).maybe
     end
 
     rule(:field_name) do
@@ -426,7 +456,7 @@ module SecurityHeaders
 
 
     #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
-    rule(:cc_token_char) do
+    rule(:extension_token_char) do
       match["\x21"]      |
       match["\x23-\x27"] |
       match["\x2a-\x2b"] |
@@ -451,14 +481,12 @@ module SecurityHeaders
       alpha | digit | str("-")
     end
 
-    #TODO blacklist bad chars instead of whitelist valid chars
     rule(:csp_value_char) do
       match["\x21-\x2b"] |
       match["\x2d-\x3b"] |
       match["\x3d"] |
       match["\x3f-\x7e"]
     end
-
 
     #
     # URI Elements

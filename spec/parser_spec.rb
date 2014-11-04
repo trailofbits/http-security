@@ -240,6 +240,28 @@ describe Parser do
   describe "Expires" do
     subject { described_class.new.security_headers }
 
+    it "parses negative integers" do
+      header = "Expires: -1\r\n\r\n"
+      expect(subject.parse header).to eq(
+        { expires: "-1" }
+      )
+    end
+
+    it "parses 0" do
+      header = "Expires: 0\r\n\r\n"
+      expect(subject.parse header).to eq(
+        { expires: "0" }
+      )
+    end
+
+    it "parses positive integers" do
+      header = "Expires: 100\r\n\r\n"
+      expect(subject.parse header).to eq(
+        { expires: "100" }
+      )
+    end
+
+
     it "parses rfc1123-date" do
       header = "Expires: Thu, 04 Dec 2015 16:00:00 GMT\r\n\r\n"
       expect(subject.parse header).to eq(
