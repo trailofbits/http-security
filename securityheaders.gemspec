@@ -16,8 +16,9 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($/)
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
+  gem.required_ruby_version = '>= 1.9.1'
 
   gem.add_dependency 'parslet', '~> 1.5'
-  gem.add_dependency 'curb'
-  gem.add_development_dependency "bundler", "~> 1.7"
+  gem.add_dependency 'curb', '~> 0.7.16'
+  gem.add_development_dependency "bundler", "~> 1.0"
 end
