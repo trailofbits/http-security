@@ -3,7 +3,7 @@ Security Headers
 
 [![Code Climate](https://codeclimate.com/github/trailofbits/securityheaders.png)](https://codeclimate.com/github/trailofbits/securityheaders) [![Build Status](https://travis-ci.org/trailofbits/securityheaders.svg)](https://travis-ci.org/trailofbits/securityheaders)
 
-[Security Headers] is a parser for security-relevant HTTP headers. Each header value is parsed and validated according to the syntax specified in its relevant RFC.
+Security Headers is a parser for security-relevant HTTP headers. Each header value is parsed and validated according to the syntax specified in its relevant RFC.
 
 Security Headers relies on [parslet] for constructing its parsing grammer, and [curb] for retreiving raw HTTP headers.
 
@@ -23,9 +23,8 @@ Currently parsed security headers are:
 Example
 -------
 
-require 'security_headers'
-headers = SecurityHeaders::Request.parse_headers("http://www.google.com")
-
+    require 'security_headers'
+    headers = SecurityHeaders::Request.parse_headers("http://www.google.com")
 
 Requirements
 ------------
