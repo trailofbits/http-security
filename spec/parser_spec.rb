@@ -2,10 +2,6 @@ require "spec_helper"
 require "security_headers/parser"
 require 'curb'
 
-class DateParser < Parslet::Parser
-  rule(:http_date) { str('date') }
-end
-
 describe Parser do
   describe "General parsing" do
     subject { described_class.new.security_headers }
