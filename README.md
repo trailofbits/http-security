@@ -5,7 +5,7 @@ Security Headers
 
 Security Headers is a parser for security-relevant HTTP headers. Each header value is parsed and validated according to the syntax specified in its relevant RFC.
 
-Security Headers relies on [parslet] for constructing its parsing grammer, and [curb] for retreiving raw HTTP headers.
+Security Headers relies on [parslet] for constructing its parsing grammer, and [curb] for retrieving raw HTTP headers.
 
 Currently parsed security headers are:
 
