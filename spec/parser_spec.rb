@@ -163,9 +163,9 @@ describe Parser do
     end
 
     it "accepts max-age of zero" do
-      header = "Strict-Transport-Security: max-age=0\r\n\r\n"
+      header = "Strict-Transport-Security: zaxzage=0; max-age=0\r\n\r\n"
       expect(subject.parse header).to eq(
-        {strict_transport_security: "max-age=0"}
+        {strict_transport_security: "zaxzage=0; max-age=0"}
       )
     end
 

@@ -81,12 +81,13 @@ module SecurityHeaders
     #
     # REQUIRED directives: max-age
     # OPTIONAL directives: includeSubdomains
-    # FIXME: This is incorrect
-    # TODO: generalize logic and include tokens/quoted-string
     header_rule("Strict-Transport-Security") do
-      (include_subdomains >> semicolon >> max_age) |
-      (max_age >> (semicolon >> include_subdomains).maybe)
+        (max_age.absent? >> (stp_header_extension >> wsp? >> semicolon >> wsp?)).repeat(0) >>
+          max_age >> ( wsp? >> semicolon >> wsp? >> stp_header_extension).repeat(0)
     end
+
+    rule(:stp_header_extension) { include_subdomains | ( extension_token >> equals >> ( extension_token | quoted_string) ) }
+
 
     # X-Content-Type-Options
     # Syntax:
