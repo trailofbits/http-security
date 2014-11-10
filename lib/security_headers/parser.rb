@@ -20,8 +20,8 @@ module SecurityHeaders
       pragma                              |
       expires                             |
       x_permitted_cross_domain_policies   |
-      content_security_policy             |
       content_security_policy_report_only |
+      content_security_policy             |
       ignore_nonsecurity_header
     end
 
