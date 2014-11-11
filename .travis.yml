@@ -2,12 +2,15 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1.1
   - 2.1.2
-  - rbx
+  - ruby-head
+  - jruby-19mode
+  - jruby-head
+  - rbx-2
 matrix:
   allow_failures:
-   - rvm: rbx
+   - rvm: rbx-2
 addons:
   code_climate:
     repo_token: 06875a3139032bf214f277be2f332d49ee050b326637042eeb1e39584ef18d99
