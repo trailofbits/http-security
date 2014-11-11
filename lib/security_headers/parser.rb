@@ -461,13 +461,14 @@ module SecurityHeaders
       match["\x21"]      |
       match["\x23-\x27"] |
       match["\x2a-\x2b"] |
-      match["\x2d-\x2e"] |
+      match["#{Regexp.escape("\x2d")}-\x2e"] |
       match["\x30-\x39"] |
       match["\x41-\x5a"] |
       match["#{Regexp.escape("\x5f")}-\x7a"] |
       match["\x7c"]      |
       match["\x7e"]
     end
+
 
     #
     # CSP Helpers
@@ -484,8 +485,8 @@ module SecurityHeaders
 
     rule(:csp_value_char) do
       match["\x21-\x2b"] |
-      match["\x2d-\x3b"] |
-      match["\x3d"] |
+      match["#{Regexp.escape("\x2d")}-\x3b"] |
+      match["\x3d"]    |
       match["\x3f-\x7e"]
     end
 
@@ -506,10 +507,16 @@ module SecurityHeaders
     rule(:unknown_header) { match["^=; \t"].repeat(1) }
 
     def stri(str)
+      #str.gsub!(/-/,"\-")
       key_chars = str.split(//)
-      key_chars.
-        collect! { |char| match["#{char.upcase}#{char.downcase}"] }.
-        reduce(:>>)
+      key_chars.collect! do |char|
+        if char.eql?("-")
+          match["#{Regexp.escape("\x2d")}"]
+        else
+          match["#{char.upcase}#{char.downcase}"]
+        end
+      end
+      key_chars.reduce(:>>)
     end
   end
 end
