@@ -464,7 +464,7 @@ module SecurityHeaders
       match["#{Regexp.escape("\x2d")}-\x2e"] |
       match["\x30-\x39"] |
       match["\x41-\x5a"] |
-      match["#{Regexp.escape("\x5f")}-\x7a"] |
+      match["\x5f-\x7a"] |
       match["\x7c"]      |
       match["\x7e"]
     end
