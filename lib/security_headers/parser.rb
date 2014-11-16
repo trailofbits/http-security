@@ -1,6 +1,8 @@
 require "parslet"
+
 module SecurityHeaders
   class Parser < Parslet::Parser
+
     root :security_headers
 
     rule(:security_headers) do
@@ -52,142 +54,6 @@ module SecurityHeaders
       end
     end
 
-    # X-Frame-Options
-    # Syntax:
-    # X-Frame-Options = "DENY"
-    #                    / "SAMEORIGIN"
-    #                    / ( "ALLOW-FROM" RWS SERIALIZED-ORIGIN )
-    #
-    #          RWS             = 1*( SP / HTAB )
-    #                        ; required whitespace
-    # Only one can be present
-    header_rule("X-Frame-Options") do
-      stri("deny") | stri("sameorigin") | allow_from
-    end
-
-    # Strict-Transport-Security
-    # Syntax:
-    #  Strict-Transport-Security = "Strict-Transport-Security" ":"
-    #                              [ directive ]  *( ";" [ directive ] )
-    #
-    #  directive                 = directive-name [ "=" directive-value ]
-    #  directive-name            = token
-    #  directive-value           = token | quoted-string
-    #
-    # where:
-    #
-    # token          = <token, defined in [RFC2616], Section 2.2>
-    # quoted-string  = <quoted-string, defined in [RFC2616], Section 2.2>
-    #
-    # REQUIRED directives: max-age
-    # OPTIONAL directives: includeSubdomains
-    header_rule("Strict-Transport-Security") do
-        (max_age.absent? >> (stp_header_extension >> wsp? >> semicolon >> wsp?)).repeat(0) >>
-          max_age >> ( wsp? >> semicolon >> wsp? >> stp_header_extension).repeat(0)
-    end
-
-    rule(:stp_header_extension) { include_subdomains | ( extension_token >> equals >> ( extension_token | quoted_string) ) }
-
-
-    # X-Content-Type-Options
-    # Syntax:
-    # X-Content-Type-Options: nosniff
-    header_rule("X-Content-Type-Options") do
-      stri("nosniff")
-    end
-
-    # X-XSS-Protection
-    # Syntax:
-    # X-Content-Type-Options: < 1 | 0 >
-    #                         /; mode=block
-    header_rule("X-XSS-Protection") do
-      (str("1") | str("0")) >> (semicolon >> x_xss_mode).maybe
-    end
-
-    # Cache-Control
-    # Syntax:
-    # Cache-Control   = "Cache-Control" ":" 1#cache-directive
-    # cache-directive = cache-response-directive
-    #  cache-response-directive =
-    #        "public"                               ; Section 14.9.1
-    #      | "private" [ "=" <"> 1#field-name <"> ] ; Section 14.9.1
-    #      | "no-cache" [ "=" <"> 1#field-name <"> ]; Section 14.9.1
-    #      | "no-store"                             ; Section 14.9.2
-    #      | "no-transform"                         ; Section 14.9.5
-    #      | "must-revalidate"                      ; Section 14.9.4
-    #      | "proxy-revalidate"                     ; Section 14.9.4
-    #      | "max-age" "=" delta-seconds            ; Section 14.9.3
-    #      | "s-maxage" "=" delta-seconds           ; Section 14.9.3
-    #      | cache-extension                        ; Section 14.9.6
-    # cache-extension = token [ "=" ( token | quoted-string ) ]
-    header_rule("Cache-Control") do
-      cache_control_values >> (comma >> cache_control_values).repeat
-    end
-
-    # X-Permitted-Cross-Domain-Policies
-    # Syntax:
-    # X-Permitted-Cross-Domain-Policies = "none"
-    #                    | master-only
-    #                    | by-content-type
-    #                    | by-ftp-filename
-    #                    | all
-    header_rule("X-Permitted-Cross-Domain-Policies") do
-      stri("none")            |
-      stri("master-only")     |
-      stri("by-content-type") |
-      stri("by-ftp-filename") |
-      stri("all")
-    end
-
-    # Content-Security-Policy
-    # Syntax:
-    # Content-Security-Policy =
-    # policy-token    = [ directive-token *( ";" [ directive-token ] ) ]
-    # directive-token = *WSP [ directive-name [ WSP directive-value ] ]
-    # directive-name  = 1*( ALPHA / DIGIT / "-" )
-    # directive-value = *( WSP / <VCHAR except ";" and ","> )
-    #
-    # Parsing Policies:
-    # To parse the policy policy, the user agent MUST use an algorithm equivalent to the following:
-    #   1. Let the set of directives be the empty set.
-    #   2. For each non-empty token returned by strictly splitting the string policy on the character U+003B SEMICOLON (;):
-    #     1. Skip whitespace.
-    #     2. Collect a sequence of characters that are not space characters. The collected characters are the directive name.
-    #     3. If there are characters remaining in token, skip ahead exactly one character (which must be a space character).
-    #     4. The remaining characters in token (if any) are the directive value.
-    #     5. If the set of directives already contains a directive whose name is a case insensitive match for directive name,
-    #        ignore this instance of the directive and continue to the next token.
-    #     6. Add a directive to the set of directives with name directive name and value directive value.
-    #   3. Return the set of directives.
-    # TODO: avoid duplicates (step 2.5)
-    header_rule("Content-Security-Policy") do
-      csp_directive >> wsp >> csp_value_sequence >> ( str(";") >> wsp >>
-        csp_directive >> wsp >> csp_value_sequence ).repeat(0) >> semicolon.maybe
-    end
-
-    header_rule("Content-Security-Policy-Report-Only") do
-      csp_directive >> wsp >> csp_value_sequence >> ( str(";") >> wsp >>
-        csp_directive >> wsp >> csp_value_sequence ).repeat(0) >> semicolon.maybe
-    end
-
-    # Pragma
-    # Syntax:
-    # Pragma            = "Pragma" ":" 1#pragma-directive
-    # pragma-directive  = "no-cache" | extension-pragma
-    # extension-pragma  = token [ "=" ( token | quoted-string ) ]
-    header_rule("Pragma") do
-      stri("no-cache") | header_extension
-    end
-
-    # Expires
-    # Syntax:
-    # Expires = "Expires" ":" HTTP-date
-    # HTTP/1.1 clients and caches MUST treat other invalid date formats,
-    # especially including the value "0", as in the past (i.e., "already expired").
-    header_rule("Expires") do
-      http_date | digits | (str("-") >> digits)
-    end
-
     #
     # Directive Helpers
     #
@@ -201,22 +67,7 @@ module SecurityHeaders
     character_match_rule("semicolon", ";")
     character_match_rule("comma", ",")
 
-    rule(:cache_control_values) do
-      stri("public")          |
-      cc_private              |
-      no_cache                |
-      stri("no-store")        |
-      stri("no-transform")    |
-      stri("must-revalidate") |
-      max_age                 |
-      s_maxage                |
-      stri("only-if-cached")  |
-      header_extension
-    end
 
-    rule(:allow_from) do
-      stri("allow-from") >> wsp.repeat(1) >> serialized_origin
-    end
 
     rule(:include_subdomains) do
       stri("includeSubDomains")
@@ -334,13 +185,6 @@ module SecurityHeaders
       stri("Dec")
     end
 
-    #
-    # URI
-    #
-    rule(:serialized_origin) do
-      scheme >> str(":") >> str("//") >> host_name >>
-      (str(":") >> digits.as(:port)).maybe
-    end
 
     rule(:uri) {
       scheme.as(:scheme) >> str(":") >> str("//").maybe >>
@@ -467,27 +311,6 @@ module SecurityHeaders
       match["\x5f-\x7a"] |
       match["\x7c"]      |
       match["\x7e"]
-    end
-
-
-    #
-    # CSP Helpers
-    #
-    rule(:csp_value_sequence) { csp_value >> (wsp >> csp_value).repeat(0) }
-
-    rule(:csp_directive) { csp_directive_char.repeat }
-    rule(:csp_value) { csp_value_char.repeat }
-
-    #CSP tokens are any character except space, comma and semicolon
-    rule(:csp_directive_char) do
-      alpha | digit | str("-")
-    end
-
-    rule(:csp_value_char) do
-      match["\x21-\x2b"] |
-      match["#{Regexp.escape("\x2d")}-\x3b"] |
-      match["\x3d"]    |
-      match["\x3f-\x7e"]
     end
 
     #
