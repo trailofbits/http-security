@@ -1,7 +1,7 @@
 require "spec_helper"
 require "security_headers/headers/x_permitted_cross_domain_policies"
 
-describe XPermitedCrossDomainPolicies do
+describe XPermittedCrossDomainPolicies do
   describe "X-Permitted-Cross-Domain-Policies" do
     subject { described_class.new.x_permitted_cross_domain_policies }
 
