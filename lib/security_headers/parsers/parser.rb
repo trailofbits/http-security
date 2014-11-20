@@ -13,9 +13,9 @@ module SecurityHeaders
 
       def self.numeric_match_rule(name,field_name)
         rule(name) do
-          stri(field_name) >> equals >> digits                       |
-          stri(field_name) >> equals >> s_quote >> digits >> s_quote |
-          stri(field_name) >> equals >> d_quote >> digits >> d_quote
+          stri(field_name) >> equals >> digits.as(name)                       |
+          stri(field_name) >> equals >> s_quote >> digits.as(name) >> s_quote |
+          stri(field_name) >> equals >> d_quote >> digits.as(name) >> d_quote
         end
       end
 
