@@ -78,12 +78,16 @@ describe Response do
         rank, domain = row[0].to_i, row[1].downcase
 
         context domain do
-          let(:response) { Net::HTTP.get_response(URI("http://#{domain}/")) }
-
           it "should not raise a ParseError" do
-            expect {
-              described_class.parse(response)
-            }.to_not raise_error
+            begin
+              response = Net::HTTP.get_response(URI("http://#{domain}/"))
+
+              expect {
+                described_class.parse(response)
+              }.to_not raise_error
+            rescue => error
+              pending error.message
+            end
           end
         end
       end
