@@ -25,27 +25,44 @@ module SecurityHeaders
       root :cache_control
 
       rule(:cache_control_values) do
-        stri("public")          |
-        cc_private              |
-        no_cache                |
-        stri("no-store")        |
-        stri("no-transform")    |
-        stri("must-revalidate") |
-        max_age                 |
-        s_maxage                |
-        stri("only-if-cached")  |
+        cc_public       |
+        cc_private      |
+        no_cache        |
+        no_store        |
+        no_transform    |
+        must_revalidate |
+        max_age         |
+        s_maxage        |
+        only_if_cached  |
         header_extension
       end
 
+      def self.directive_rule(name,string=nil)
+        string ||= name.to_s.tr('_','-')
+
+        rule(name) { stri(string).as(name) }
+      end
+
+      directive_rule :cc_public, 'public'
+
       #"private" [ "=" <"> 1#field-name <"> ];
       rule(:cc_private) do
-        stri("private") >> ( equals >> field_name ).maybe
+        (
+          stri("private") >> ( equals >> field_name.as(:field) ).maybe
+        ).as(:private)
       end
 
       #"no-cache" [ "=" <"> 1#field-name <"> ];
       rule(:no_cache) do
-        stri("no-cache") >> ( equals >> field_name ).maybe
+        (
+          stri("no-cache") >> ( equals >> field_name ).maybe
+        ).as(:no_cache)
       end
+
+      directive_rule :no_store
+      directive_rule :no_transform
+      directive_rule :must_revalidate
+      directive_rule :only_if_cached
     end
   end
 end
