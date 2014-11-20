@@ -37,9 +37,7 @@ module SecurityHeaders
         header_extension
       end
 
-      def self.directive_rule(name,string=nil)
-        string ||= name.to_s.tr('_','-')
-
+      def self.directive_rule(name,string)
         rule(name) { stri(string).as(name) }
       end
 
@@ -59,10 +57,10 @@ module SecurityHeaders
         ).as(:no_cache)
       end
 
-      directive_rule :no_store
-      directive_rule :no_transform
-      directive_rule :must_revalidate
-      directive_rule :only_if_cached
+      directive_rule :no_store, 'no-store'
+      directive_rule :no_transform, 'no-transform'
+      directive_rule :must_revalidate, 'must-revalidate'
+      directive_rule :only_if_cached, 'only-if-cached'
     end
   end
 end

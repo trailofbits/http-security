@@ -11,10 +11,8 @@ module SecurityHeaders
         header.downcase.gsub("-","_").to_sym
       end
 
-      def self.numeric_match_rule(field_name)
-        name = header_to_sym(field_name)
-
-        rule(:"#{name}") do
+      def self.numeric_match_rule(name,field_name)
+        rule(name) do
           stri(field_name) >> equals >> digits                       |
           stri(field_name) >> equals >> s_quote >> digits >> s_quote |
           stri(field_name) >> equals >> d_quote >> digits >> d_quote
@@ -22,7 +20,7 @@ module SecurityHeaders
       end
 
       def self.character_match_rule(name, character)
-        rule(:"#{name}") do
+        rule(name) do
           wsp? >> str(character) >> wsp?
         end
       end
@@ -54,15 +52,15 @@ module SecurityHeaders
       #
       # Directive Helpers
       #
-      numeric_match_rule("max-age")
-      numeric_match_rule("max-stale")
-      numeric_match_rule("min-fresh")
-      numeric_match_rule("s-maxage")
-      character_match_rule("equals", "=")
-      character_match_rule("s_quote", "'")
-      character_match_rule("d_quote", '"')
-      character_match_rule("semicolon", ";")
-      character_match_rule("comma", ",")
+      numeric_match_rule :max_age, "max-age"
+      numeric_match_rule :max_stale, "max-stale"
+      numeric_match_rule :min_fresh, "min-fresh"
+      numeric_match_rule :s_maxage, "s-maxage"
+      character_match_rule :equals, "="
+      character_match_rule :s_quote, "'"
+      character_match_rule :d_quote, '"'
+      character_match_rule :semicolon, ";"
+      character_match_rule :comma, ","
 
       # HTTP-date    = rfc1123-date | rfc850-date | asctime-date
       # rfc1123-date = wkday "," SP date1 SP time SP "GMT"
