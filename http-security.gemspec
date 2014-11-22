@@ -5,7 +5,7 @@ require 'http/security/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "http-security"
-  gem.version       = SecurityHeaders::VERSION
+  gem.version       = HTTP::Security::VERSION
   gem.authors       = ["Dominic Owen", "Hal Brodigan"]
   gem.email         = ["dwowen20@gmail.com", "hal@trailofbits.com"]
   gem.summary       = %q{HTTP Security Header Parser}
