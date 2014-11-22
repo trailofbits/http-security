@@ -1,11 +1,12 @@
-Security Headers
-=====
+# HTTP Security
 
-[![Code Climate](https://codeclimate.com/github/trailofbits/securityheaders.png)](https://codeclimate.com/github/trailofbits/securityheaders) [![Build Status](https://travis-ci.org/trailofbits/securityheaders.svg)](https://travis-ci.org/trailofbits/securityheaders) [![Test Coverage](https://codeclimate.com/github/trailofbits/securityheaders/badges/coverage.svg)](https://codeclimate.com/github/trailofbits/securityheaders)
+[![Code Climate](https://codeclimate.com/github/trailofbits/http-security.png)](https://codeclimate.com/github/trailofbits/http-security) [![Build Status](https://travis-ci.org/trailofbits/http-security.svg)](https://travis-ci.org/trailofbits/http-security) [![Test Coverage](https://codeclimate.com/github/trailofbits/http-security/badges/coverage.svg)](https://codeclimate.com/github/trailofbits/http-security)
 
-Security Headers is a parser for security-relevant HTTP headers. Each header value is parsed and validated according to the syntax specified in its relevant RFC.
+Security Headers is a parser for security-relevant HTTP headers. Each header
+value is parsed and validated according to the syntax specified in its relevant 
+RFC.
 
-Security Headers relies on [parslet] for constructing its parsing grammer, and [curb] for retrieving raw HTTP headers.
+Security Headers relies on [parslet] for constructing its parsing grammar.
 
 Currently parsed security headers are:
 
@@ -20,30 +21,40 @@ Currently parsed security headers are:
 * Content-Security-Policy
 * Content-Security-Policy-Report-Only
 
-Example
--------
+## Example
+
+    require 'net/https'
+    response = Net::HTTP.get_response(URI('https://twitter.com/'))
 
     require 'security_headers'
-    headers = SecurityHeaders::Request.parse_headers("http://www.google.com")
+    headers = SecurityHeaders::Response.new(response)
 
-parse_headers returns an array of hashes, with non security headers given a key of 'excluded'. Pretty printing the result from above returns:
+    headers.cache_control
+    # => 
 
-    [{:excluded=>"HTTP/1.1 200 OK"@0},
-     {:excluded=>"Date: Tue, 11 Nov 2014 02:57:15 GMT"@17},
-     {:expires=>"-1"@63},
-     {:cache_control=>"private, max-age=0"@82},
-     {:excluded=>"Content-Type: text/html; charset=ISO-8859-1"@102},
-     {:excluded=>
-       "Set-Cookie: ..."@147},
-     {:excluded=>
-       "Set-Cookie: ..."@304},
-     {:excluded=>
-       "P3P: CP=\"This is not a P3P policy! See http://www.google.com/support/accounts/bin/answer.py?hl=en&answer=151657 for more info.\""@530},
-     {:excluded=>"Server: gws"@659},
-     {:x_xss_protection=>"1; mode=block"@690},
-     {:x_frame_options=>"SAMEORIGIN"@722},
-     {:excluded=>"Alternate-Protocol: 80:quic,p=0.01"@734},
-     {:excluded=>"Transfer-Encoding: chunked"@770}]
+    headers.content_security_policy
+    # => 
+
+    headers.expires
+    # => 
+
+    headers.pragma
+    # => 
+
+    headers.strict_transport_security
+    # => 
+
+    headers.x_content_type_options
+    # => 
+
+    headers.x_frame_options
+    # => 
+
+    headers.x_permitted_cross_domain_policies
+    # => 
+
+    headers.x_xss_protection
+    # => 
 
 Requirements
 ------------
@@ -54,7 +65,7 @@ Requirements
 Install
 -------
 
-    $ gem install securityheaders
+    $ gem install http-security
 
 Testing
 -------
@@ -73,4 +84,3 @@ License
 See the {file:LICENSE.txt} file.
 
 [parslet]: http://kschiess.github.io/parslet/
-[curb]: https://github.com/taf2/curb/
