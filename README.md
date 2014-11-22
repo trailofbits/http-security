@@ -26,8 +26,8 @@ Currently parsed security headers are:
     require 'net/https'
     response = Net::HTTP.get_response(URI('https://twitter.com/'))
 
-    require 'security_headers'
-    headers = SecurityHeaders::Response.new(response)
+    require 'http/security'
+    headers = HTTP::Security::Response.parse(response)
 
     headers.cache_control
     # => 
@@ -36,25 +36,25 @@ Currently parsed security headers are:
     # => 
 
     headers.expires
-    # => 
+    # => #<Date: 1981-03-31 ((2444695j,0s,0n),+0s,2299161j)>
 
     headers.pragma
-    # => 
+    # => {:no_cache=>true}
 
     headers.strict_transport_security
     # => 
 
     headers.x_content_type_options
-    # => 
+    # => {:nosniff=>true}
 
     headers.x_frame_options
-    # => 
+    # => {:sameorigin=>true}
 
     headers.x_permitted_cross_domain_policies
     # => 
 
     headers.x_xss_protection
-    # => 
+    # => {:enabled=>true, :mode=>"block"@8}
 
 Requirements
 ------------
