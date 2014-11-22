@@ -118,7 +118,7 @@ module HTTP
 
         HEADERS.each do |name,header,parser|
           if (value = response[header])
-            fields[name] = parser.parse(response[header])
+            fields[name] = parser.parse(value)
           end
         end
 
