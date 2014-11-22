@@ -9,9 +9,15 @@ module SecurityHeaders
       # pragma-directive  = "no-cache" | extension-pragma
       # extension-pragma  = token [ "=" ( token | quoted-string ) ]
       rule(:pragma) do
-        stri("no-cache") | header_extension
+        (
+          no_cache | header_extension
+        ).as(:directives)
       end
       root :pragma
+
+      rule(:no_cache) do
+        stri('no-cache').as(:name)
+      end
     end
   end
 end

@@ -1,36 +1,37 @@
 require "parslet"
+require 'date'
+require 'uri'
 
 module SecurityHeaders
   module Parsers
     class Parser < Parslet::Parser
-      def self.parse(value)
-        new.parse(value)
-      end
-
-      def self.header_to_sym(header)
-        header.downcase.gsub("-","_").to_sym
-      end
-
-      def self.numeric_match_rule(name,field_name)
-        rule(name) do
-          stri(field_name) >> equals >> digits.as(name)                       |
-          stri(field_name) >> equals >> s_quote >> digits.as(name) >> s_quote |
-          stri(field_name) >> equals >> d_quote >> digits.as(name) >> d_quote
-        end
-      end
-
       def self.character_match_rule(name, character)
         rule(name) do
           wsp? >> str(character) >> wsp?
         end
       end
+      
+      def self.directive_rule(name,string=nil)
+        string ||= name.to_s.tr('_','-')
 
-      def self.header_rule(field_name, &block)
-        name = header_to_sym(field_name)
+        rule(name) do
+          stri(string).as(:name)
+        end
+      end
 
-        rule(:"#{name}") do
-          wsp? >> stri(field_name) >> wsp? >> str(":") >> wsp? >>
-          (instance_eval(&block).as(name) | unknown_header) >> wsp?
+      def self.field_directive_rule(name,directive)
+        rule(name) do
+          stri(directive).as(:name) >> (equals >> field_name.as(:value)).maybe
+        end
+      end
+
+      def self.numeric_directive_rule(name,directive)
+        rule(name) do
+          stri(directive).as(:name) >> equals >> (
+            digits.as(:numeric) |
+            (s_quote >> digits.as(:numeric) >> s_quote) |
+            (d_quote >> digits.as(:numeric) >> d_quote)
+          ).as(:value)
         end
       end
 
@@ -52,10 +53,10 @@ module SecurityHeaders
       #
       # Directive Helpers
       #
-      numeric_match_rule :max_age, "max-age"
-      numeric_match_rule :max_stale, "max-stale"
-      numeric_match_rule :min_fresh, "min-fresh"
-      numeric_match_rule :s_maxage, "s-maxage"
+      numeric_directive_rule :max_age, "max-age"
+      numeric_directive_rule :max_stale, "max-stale"
+      numeric_directive_rule :min_fresh, "min-fresh"
+      numeric_directive_rule :s_maxage, "s-maxage"
       character_match_rule :equals, "="
       character_match_rule :s_quote, "'"
       character_match_rule :d_quote, '"'
@@ -82,9 +83,11 @@ module SecurityHeaders
       #             | "May" | "Jun" | "Jul" | "Aug"
       #             | "Sep" | "Oct" | "Nov" | "Dec"
       rule(:http_date) do
-        rfc1123_date |
-        rfc850_date  |
-        asctime_date
+        (
+          rfc1123_date |
+          rfc850_date  |
+          asctime_date
+        ).as(:date)
       end
 
       rule(:rfc1123_date) do
@@ -167,11 +170,13 @@ module SecurityHeaders
       end
 
       rule(:uri) {
-        scheme.as(:scheme) >> str(":") >> str("//").maybe >>
-        (user_info.as(:user_info) >> str("@")).maybe >>
-        host_name.as(:host) >>
-        (str(":") >> digits.as(:port)).maybe >>
-        uri_path
+        (
+          scheme.as(:scheme) >> str(":") >> str("//").maybe >>
+          (user_info.as(:user_info) >> str("@")).maybe >>
+          host_name.as(:host) >>
+          (str(":") >> digits.as(:port)).maybe >>
+          uri_path
+        ).as(:uri)
       }
 
       #
@@ -237,42 +242,44 @@ module SecurityHeaders
       end
 
       rule(:valid_field_name) do
-        stri("Access-Control-Allow-Origin")   |
-        stri("Accept-Ranges")             |
-        stri("Age")                       |
-        stri("Allow")                     |
-        stri("Cache-Control")             |
-        stri("Connection")                |
-        stri("Content-Encoding")          |
-        stri("Content-Language")          |
-        stri("Content-Length")            |
-        stri("Content-Location")          |
-        stri("Content-MD5")               |
-        stri("Content-Disposition")       |
-        stri("Content-Range")             |
-        stri("Content-Type")              |
-        stri("ETag")                      |
-        stri("Expires")                   |
-        stri("Last-Modified")             |
-        stri("Link")                      |
-        stri("Location")                  |
-        stri("P3P")                       |
-        stri("Pragma")                    |
-        stri("Proxy-Authenticate")        |
-        stri("Refresh")                   |
-        stri("Retry-After")               |
-        stri("Server")                    |
-        stri("Set-Cookie")                |
-        stri("Status")                    |
-        stri("Strict-Transport-Security") |
-        stri("Trailer")                   |
-        stri("Transfer-Encoding")         |
-        stri("Upgrade")                   |
-        stri("Vary")                      |
-        stri("Via")                       |
-        stri("Warning")                   |
-        stri("WWW-Authenticate")          |
-        stri("X-Frame-Options")
+        (
+          stri("Access-Control-Allow-Origin")   |
+          stri("Accept-Ranges")             |
+          stri("Age")                       |
+          stri("Allow")                     |
+          stri("Cache-Control")             |
+          stri("Connection")                |
+          stri("Content-Encoding")          |
+          stri("Content-Language")          |
+          stri("Content-Length")            |
+          stri("Content-Location")          |
+          stri("Content-MD5")               |
+          stri("Content-Disposition")       |
+          stri("Content-Range")             |
+          stri("Content-Type")              |
+          stri("ETag")                      |
+          stri("Expires")                   |
+          stri("Last-Modified")             |
+          stri("Link")                      |
+          stri("Location")                  |
+          stri("P3P")                       |
+          stri("Pragma")                    |
+          stri("Proxy-Authenticate")        |
+          stri("Refresh")                   |
+          stri("Retry-After")               |
+          stri("Server")                    |
+          stri("Set-Cookie")                |
+          stri("Status")                    |
+          stri("Strict-Transport-Security") |
+          stri("Trailer")                   |
+          stri("Transfer-Encoding")         |
+          stri("Upgrade")                   |
+          stri("Vary")                      |
+          stri("Via")                       |
+          stri("Warning")                   |
+          stri("WWW-Authenticate")          |
+          stri("X-Frame-Options")
+        ).as(:field)
       end
 
       #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
@@ -294,10 +301,40 @@ module SecurityHeaders
       rule(:scheme)    { ( alpha | digit | match("[+-.]") ).repeat }
       rule(:host_name) { ( alnum | match("[-_.]") ).repeat(1)      }
 
-      #
-      # Misc
-      #
-      rule(:unknown_header) { match["^=; \t"].repeat(1) }
+      class Transform < Parslet::Transform
+
+        rule(boolean: simple(:bool)) do
+          case bool
+          when '0', 'no', 'false' then false
+          when '1', 'yes', 'true' then true
+          end
+        end
+        rule(numeric: simple(:numeric)) { Integer(numeric) }
+        rule(date: simple(:date))       { Date.parse(date) }
+        rule(uri: simple(:uri))         { URI.parse(uri)   }
+
+        rule(name: simple(:name)) do
+          {name.to_s.downcase.tr('-','_').to_sym => true}
+        end
+        rule(name: simple(:name), value: simple(:value)) do
+          {name.to_s.downcase.tr('-','_').to_sym => value}
+        end
+        rule(directives: subtree(:hashes)) do
+          case hashes
+          when Array then hashes.reduce(&:merge!)
+          else            hashes
+          end
+        end
+      end
+
+      def parse(string)
+        Transform.new.apply(super(string))
+      end
+
+      def self.parse(string)
+        new.parse(string)
+      end
+
     end
   end
 end

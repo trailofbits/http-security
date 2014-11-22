@@ -20,7 +20,9 @@ module SecurityHeaders
       #      | cache-extension                        ; Section 14.9.6
       # cache-extension = token [ "=" ( token | quoted-string ) ]
       rule(:cache_control) do
-        cache_control_values >> (comma >> cache_control_values).repeat
+        (
+          cache_control_values >> (comma >> cache_control_values).repeat
+        ).as(:directives)
       end
       root :cache_control
 
@@ -37,30 +39,22 @@ module SecurityHeaders
         header_extension
       end
 
-      def self.directive_rule(name,string)
-        rule(name) { stri(string).as(name) }
+      #"private" [ "=" <"> 1#field-name <"> ];
+      rule(:cc_public) do
+        stri("public").as(:name) >> (equals >> field_name.as(:value)).maybe
       end
-
-      directive_rule :cc_public, 'public'
 
       #"private" [ "=" <"> 1#field-name <"> ];
       rule(:cc_private) do
-        (
-          stri("private") >> ( equals >> field_name.as(:field) ).maybe
-        ).as(:private)
+        stri("private").as(:name) >> (equals >> field_name.as(:value)).maybe
       end
 
-      #"no-cache" [ "=" <"> 1#field-name <"> ];
-      rule(:no_cache) do
-        (
-          stri("no-cache") >> ( equals >> field_name ).maybe
-        ).as(:no_cache)
-      end
-
+      field_directive_rule :no_cache, 'no-cache'
       directive_rule :no_store, 'no-store'
       directive_rule :no_transform, 'no-transform'
       directive_rule :must_revalidate, 'must-revalidate'
       directive_rule :only_if_cached, 'only-if-cached'
+
     end
   end
 end

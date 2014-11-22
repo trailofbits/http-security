@@ -13,20 +13,28 @@ module SecurityHeaders
       #                        ; required whitespace
       # Only one can be present
       rule(:x_frame_options) do
-        stri("deny") | stri("sameorigin") | allow_from
+        (
+          deny | same_origin | allow_from
+        ).as(:directives)
       end
       root :x_frame_options
 
+      directive_rule :deny, 'deny'
+      directive_rule :same_origin, 'sameorigin'
+
       rule(:allow_from) do
-        stri("allow-from") >> wsp.repeat(1) >> serialized_origin
+        stri("allow-from").as(:name) >> wsp.repeat(1) >>
+        serialized_origin.as(:value)
       end
 
       #
       # URI
       #
       rule(:serialized_origin) do
-        scheme >> str(":") >> str("//") >> host_name >>
-        (str(":") >> digits.as(:port)).maybe
+        (
+          scheme >> str(":") >> str("//") >> host_name >>
+          (str(":") >> digits.as(:port)).maybe
+        ).as(:uri)
       end
     end
   end

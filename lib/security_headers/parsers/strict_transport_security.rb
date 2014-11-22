@@ -20,8 +20,10 @@ module SecurityHeaders
       # REQUIRED directives: max-age
       # OPTIONAL directives: includeSubdomains
       rule(:strict_transport_security) do
-        (max_age.absent? >> (stp_header_extension >> wsp? >> semicolon >> wsp?)).repeat(0) >>
-        max_age >> ( wsp? >> semicolon >> wsp? >> stp_header_extension).repeat(0)
+        (
+          (max_age.absent? >> (stp_header_extension >> wsp? >> semicolon >> wsp?)).repeat(0) >>
+          max_age >> (semicolon >> stp_header_extension).repeat(0)
+        ).as(:directives)
       end
       root :strict_transport_security
 
@@ -30,7 +32,7 @@ module SecurityHeaders
       end
 
       rule(:include_subdomains) do
-        stri("includeSubDomains")
+        stri("includeSubDomains").as(:name)
       end
     end
   end

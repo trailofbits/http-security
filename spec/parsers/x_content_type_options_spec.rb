@@ -5,8 +5,6 @@ describe Parsers::XContentTypeOptions do
   it "accepts nosniff" do
     header = "nosniff"
 
-    expect(subject.parse(header)).to eq(
-      "nosniff"
-    )
+    expect(subject.parse(header)).to eq(nosniff: true)
   end
 end

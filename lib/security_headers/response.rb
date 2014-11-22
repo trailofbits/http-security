@@ -2,6 +2,7 @@ require 'security_headers/parsers'
 
 module SecurityHeaders
   class Response
+
     # The parsed `Cache-Control` header.
     attr_reader :cache_control
 
@@ -122,5 +123,6 @@ module SecurityHeaders
 
       return new(fields)
     end
+
   end
 end

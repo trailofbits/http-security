@@ -8,19 +8,19 @@ describe Parsers::Parser do
     it "parses rfc1123-date" do
       date = "Thu, 04 Dec 2015 16:00:00 GMT"
 
-      expect(subject.parse(date)).to eq(date)
+      expect(subject.parse(date)).to eq(date: date)
     end
 
     it "parses rfc850-date" do
       date = "Thursday, 04-Dec-15 16:00:00 GMT"
 
-      expect(subject.parse(date)).to eq(date)
+      expect(subject.parse(date)).to eq(date: date)
     end
 
     it "parses rfc1123-date" do
       date = "Thu Dec 04 16:00:00 2015"
 
-      expect(subject.parse(date)).to eq(date)
+      expect(subject.parse(date)).to eq(date: date)
     end
   end
 end
