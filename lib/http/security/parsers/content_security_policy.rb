@@ -1,4 +1,4 @@
-require 'security_headers/parsers/parser'
+require 'http/security/parsers/parser'
 
 module SecurityHeaders
   module Parsers

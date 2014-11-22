@@ -1,5 +1,5 @@
 require "spec_helper"
-require 'security_headers/parsers/parser'
+require 'http/security/parsers/parser'
 
 describe Parsers::Parser do
   describe "#http_date" do

@@ -1,2 +1,0 @@
-require "security_headers/version"
-require "security_headers/response"

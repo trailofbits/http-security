@@ -4,7 +4,7 @@ if ENV['CODECLIMATE_REPO_TOKEN']
 end
 
 require 'rspec'
-require 'security_headers/version'
+require 'http/security/version'
 
 include SecurityHeaders
 

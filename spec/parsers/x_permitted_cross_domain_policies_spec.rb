@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/x_permitted_cross_domain_policies"
+require "http/security/parsers/x_permitted_cross_domain_policies"
 
 describe Parsers::XPermittedCrossDomainPolicies do
   it "accepts none" do

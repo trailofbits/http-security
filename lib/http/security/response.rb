@@ -1,4 +1,4 @@
-require 'security_headers/parsers'
+require 'http/security/parsers'
 
 module SecurityHeaders
   class Response

@@ -1,4 +1,4 @@
-require 'security_headers/parsers/content_security_policy'
+require 'http/security/parsers/content_security_policy'
 
 module SecurityHeaders
   module Parsers

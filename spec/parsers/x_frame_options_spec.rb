@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/x_frame_options"
+require "http/security/parsers/x_frame_options"
 
 describe Parsers::XFrameOptions do
   it "parses deny" do

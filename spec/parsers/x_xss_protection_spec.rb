@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/x_xss_protection"
+require "http/security/parsers/x_xss_protection"
 
 describe Parsers::XXSSProtection do
   it "it accepts 1; mode=block" do

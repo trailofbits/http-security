@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/x_content_type_options"
+require "http/security/parsers/x_content_type_options"
 
 describe Parsers::XContentTypeOptions do
   it "accepts nosniff" do

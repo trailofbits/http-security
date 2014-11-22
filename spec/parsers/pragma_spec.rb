@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/pragma"
+require "http/security/parsers/pragma"
 
 describe Parsers::Pragma do
   it "accepts no-cache" do

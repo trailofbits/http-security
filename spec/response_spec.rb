@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/response"
+require "http/security/response"
 
 describe Response do
   describe "#initialize" do

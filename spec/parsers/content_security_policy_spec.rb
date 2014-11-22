@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/content_security_policy"
+require "http/security/parsers/content_security_policy"
 
 describe Parsers::ContentSecurityPolicy do
   it "accepts default-src 'self'" do

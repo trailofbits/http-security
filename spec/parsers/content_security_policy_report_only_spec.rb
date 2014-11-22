@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/content_security_policy_report_only"
+require "http/security/parsers/content_security_policy_report_only"
 
 describe Parsers::ContentSecurityPolicyReportOnly do
   it "accepts default-src 'self'" do

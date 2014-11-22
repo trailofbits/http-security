@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/cache_control"
+require "http/security/parsers/cache_control"
 
 describe Parsers::CacheControl do
   it "accepts private" do

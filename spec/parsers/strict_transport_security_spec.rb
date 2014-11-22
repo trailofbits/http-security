@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/strict_transport_security"
+require "http/security/parsers/strict_transport_security"
 
 describe Parsers::StrictTransportSecurity do
   it "accepts only max-age" do

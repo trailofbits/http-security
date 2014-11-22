@@ -1,5 +1,5 @@
 require "spec_helper"
-require "security_headers/parsers/expires"
+require "http/security/parsers/expires"
 
 describe Parsers::Expires do
   it "parses negative integers" do
