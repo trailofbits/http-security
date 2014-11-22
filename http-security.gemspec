@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'security_headers/version'
+require 'http/security/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "securityheaders"
+  gem.name          = "http-security"
   gem.version       = SecurityHeaders::VERSION
   gem.authors       = ["Dominic Owen", "Hal Brodigan"]
   gem.email         = ["dwowen20@gmail.com", "hal@trailofbits.com"]
-  gem.summary       = %q{Security Header Parser}
-  gem.description   = %q{Security Header Parser}
-  gem.homepage      = "https://github.com/trailofbits/securityheaders#readme"
+  gem.summary       = %q{HTTP Security Header Parser}
+  gem.description   = %q{HTTP Security Header Parser}
+  gem.homepage      = "https://github.com/trailofbits/http-security#readme"
   gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($/)
