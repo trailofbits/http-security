@@ -25,16 +25,15 @@ module HTTP
         #     6. Add a directive to the set of directives with name directive name and value directive value.
         #   3. Return the set of directives.
         rule(:csp_pattern) do
-          csp_directive >> wsp >> source_list >> (
-            str(";") >> wsp >>
-            csp_directive >> wsp >> source_list
-          ).repeat(0) >> semicolon.maybe
+          (
+            csp_entry >> ( str(";") >> wsp >> csp_entry ).repeat(0) >> semicolon.maybe
+          ).as(:directives)
         end
         root :csp_pattern
 
         rule(:csp_entry) do
-          (csp_directive >> wsp >> source_list) |
-          report_uri                            |
+          (csp_directive.as(:name) >> wsp >> source_list.as(:value)) |
+          report_uri                                                 |
           sandbox
         end
 
@@ -115,7 +114,7 @@ module HTTP
         # directive-value   = uri-reference *( 1*WSP uri-reference )
         # uri-reference     = <URI-reference from RFC 3986>
         rule(:report_uri) do
-          stri("report-uri") >> uri >> uri.repeat(0)
+          stri("report-uri").as(:name) >> (uri >> uri.repeat(0)).as(:value)
         end
 
         # sandbox (Optional)
@@ -123,7 +122,7 @@ module HTTP
         # directive-value   = token *( 1*WSP token )
         # token             = <token from RFC 2616>
         rule(:sandbox) do
-          stri("sandbox") >> token >> token.repeat(0)
+          stri("sandbox").as(:name) >> (token >> token.repeat(0)).as(:value)
         end
       end
     end

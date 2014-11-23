@@ -6,7 +6,7 @@ describe Parsers::ContentSecurityPolicyReportOnly do
     header = "default-src 'self';"
 
     expect(subject.parse(header)).to eq(
-      "default-src 'self';"
+      default_src: "'self'"
     )
   end
 
@@ -14,7 +14,8 @@ describe Parsers::ContentSecurityPolicyReportOnly do
     header = "default-src 'self'; script-src 'self';"
 
     expect(subject.parse(header)).to eq(
-      "default-src 'self'; script-src 'self';"
+      default_src: "'self'",
+      script_src: "'self'"
     )
   end
 
@@ -22,7 +23,7 @@ describe Parsers::ContentSecurityPolicyReportOnly do
     header = "default-src 'self' trustedscripts.foo.com"
 
     expect(subject.parse(header)).to eq(
-      "default-src 'self' trustedscripts.foo.com"
+      default_src: "'self' trustedscripts.foo.com"
     )
   end
 
@@ -30,7 +31,9 @@ describe Parsers::ContentSecurityPolicyReportOnly do
     header = "default-src 'self'; img-src 'self' data:; media-src mediastream:"
 
     expect(subject.parse(header)).to eq(
-      "default-src 'self'; img-src 'self' data:; media-src mediastream:"
+      default_src: "'self'",
+      img_src: "'self' data:",
+      media_src: "mediastream:"
     )
   end
 end
