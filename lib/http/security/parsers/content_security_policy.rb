@@ -72,7 +72,7 @@ module HTTP
         end
 
         rule(:source_expression) do
-          scheme_source | host_source | keyword_source | ext_host_source
+          scheme_source | host_source | keyword_source
         end
 
         rule(:csp_vchar) do
@@ -107,7 +107,7 @@ module HTTP
         end
 
         rule(:ext_host_source) do
-          host_source >> str("/") >> csp_vchar.repeat(0)
+          (scheme >> str("://")).maybe >> csp_host >> ext_host_source.maybe >> port.maybe
         end
 
         # report-uri

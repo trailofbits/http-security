@@ -42,7 +42,7 @@ describe Parsers::ContentSecurityPolicy do
     )
  end
 
- it "unsafe-inline and unsafe-eval" do
+ it "parses unsafe-inline and unsafe-eval" do
   header = "default-src https: 'unsafe-inline' 'unsafe-eval'"
 
     expect(subject.parse(header)).to eq(
@@ -50,12 +50,9 @@ describe Parsers::ContentSecurityPolicy do
     )
  end
 
- it "specific paths" do
-  header = "default-src http://example.com"
-
-    expect(subject.parse(header)).to eq(
-      header
-    )
+ describe "specific URI paths" do
+  header = "default-src default-src 'self'; script-src https://example.com/js/"
+    it "is not inlcuded in CSP 1.0. Enable ext_host_source to parse specific paths."
  end
 
 end
