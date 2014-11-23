@@ -60,7 +60,6 @@ Requirements
 ------------
 
 * [parslet] ~> 1.5
-* [curb] ~> 0.7.16
 
 Install
 -------
