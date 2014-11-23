@@ -11,21 +11,21 @@ module HTTP
             wsp? >> str(character) >> wsp?
           end
         end
-        
+
         def self.directive_rule(name,string=nil)
           string ||= name.to_s.tr('_','-')
-  
+
           rule(name) do
             stri(string).as(:name)
           end
         end
-  
+
         def self.field_directive_rule(name,directive)
           rule(name) do
             stri(directive).as(:name) >> (equals >> field_name.as(:value)).maybe
           end
         end
-  
+
         def self.numeric_directive_rule(name,directive)
           rule(name) do
             stri(directive).as(:name) >> equals >> (
@@ -35,11 +35,11 @@ module HTTP
             ).as(:value)
           end
         end
-  
+
         def stri(str)
           #str.gsub!(/-/,"\-")
           key_chars = str.split(//)
-  
+
           key_chars.collect! do |char|
             if char.eql?("-")
               match["#{Regexp.escape("\x2d")}"]
@@ -47,10 +47,10 @@ module HTTP
               match["#{char.upcase}#{char.downcase}"]
             end
           end
-  
+
           key_chars.reduce(:>>)
         end
-        
+
         #
         # Directive Helpers
         #
@@ -63,7 +63,7 @@ module HTTP
         character_match_rule :d_quote, '"'
         character_match_rule :semicolon, ";"
         character_match_rule :comma, ","
-  
+
         # HTTP-date    = rfc1123-date | rfc850-date | asctime-date
         # rfc1123-date = wkday "," SP date1 SP time SP "GMT"
         # rfc850-date  = weekday "," SP date2 SP time SP "GMT"
@@ -90,51 +90,51 @@ module HTTP
             asctime_date
           ).as(:date)
         end
-  
+
         rule(:rfc1123_date) do
           wkday >> str(",") >> wsp >> date1 >> wsp >> time >> wsp >> str("GMT")
         end
-  
+
         rule(:rfc850_date) do
           weekday >> str(",") >> wsp >> date2 >> wsp >> time >> wsp >> str("GMT")
         end
-  
+
         rule(:asctime_date) do
           wkday >> wsp >> date3 >> wsp >> time >> wsp >> four_digit
         end
-  
+
         #day month year (e.g., 02 Jun 1982)
         rule(:date1) do
           two_digit >> wsp >> month >> wsp >> four_digit
         end
-  
+
         #day-month-year (e.g., 02-Jun-82)
         rule(:date2) do
           two_digit >> str("-") >> month >> str("-") >> two_digit
         end
-  
+
         #month day (e.g., Jun  2)
         rule(:date3) do
           month >> wsp >> (two_digit | (wsp >> one_digit))
         end
-  
+
         #00:00:00 - 23:59:59
         rule(:time) do
           two_digit >> str(":") >> two_digit >> str(":") >> two_digit
         end
-  
+
         rule(:four_digit) do
           digit.repeat(4,4)
         end
-  
+
         rule(:two_digit) do
           digit.repeat(2,2)
         end
-  
+
         rule(:one_digit) do
           digit.repeat(1,1)
         end
-  
+
         rule(:wkday) do
           stri("Mon") |
           stri("Tue") |
@@ -144,7 +144,7 @@ module HTTP
           stri("Sat") |
           stri("Sun")
         end
-  
+
         rule(:weekday) do
           stri("Monday")    |
           stri("Tuesday")   |
@@ -154,7 +154,7 @@ module HTTP
           stri("Saturday")  |
           stri("Sunday")
         end
-  
+
         rule(:month) do
           stri("Jan") |
           stri("Feb") |
@@ -169,7 +169,7 @@ module HTTP
           stri("Nov") |
           stri("Dec")
         end
-  
+
         rule(:uri) {
           (
             scheme.as(:scheme) >> str(":") >> str("//").maybe >>
@@ -179,7 +179,7 @@ module HTTP
             uri_path
           ).as(:uri)
         }
-  
+
         #
         # Character Classes
         #
@@ -195,7 +195,7 @@ module HTTP
         rule(:alphanum) { alpha | digit }
         rule(:wsp) { match[" \t"] }
         rule(:wsp?) { wsp.repeat }
-  
+
         #
         # Cache Control Helpers
         # quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
@@ -207,15 +207,15 @@ module HTTP
           ( extension_token >> equals >> ( extension_token | quoted_string) )
         end
         rule(:extension_token) { extension_token_char.repeat }
-  
+
         rule(:quoted_string) do
           d_quote >> quoted_string_text >> d_quote
         end
-  
+
         rule(:quoted_string_text) do
           qdtext | quoted_pair
         end
-  
+
         rule(:qdtext) do
           (
             wsp                |
@@ -225,23 +225,23 @@ module HTTP
             obs_text
           ).repeat(1)
         end
-  
+
         rule(:quoted_pair) do
           (wsp | obs_text | vchar).repeat(1)
         end
-  
+
         rule(:vchar) do
           match["\x20-\x7f"]
         end
-  
+
         rule(:obs_text) do
           match["\x80-\xFF"]
         end
-  
+
         rule(:field_name) do
           valid_field_name | ( d_quote >> valid_field_name >> d_quote )
         end
-  
+
         rule(:valid_field_name) do
           (
             stri("Access-Control-Allow-Origin")   |
@@ -282,7 +282,7 @@ module HTTP
             stri("X-Frame-Options")
           ).as(:field)
         end
-  
+
         #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
         rule(:extension_token_char) do
           match["\x21"]      |
@@ -295,15 +295,15 @@ module HTTP
           match["\x7c"]      |
           match["\x7e"]
         end
-  
+
         #
         # URI Elements
         #
         rule(:scheme)    { ( alpha | digit | match("[+-.]") ).repeat }
         rule(:host_name) { ( alnum | match("[-_.]") ).repeat(1)      }
-  
+
         class Transform < Parslet::Transform
-  
+
           rule(boolean: simple(:bool)) do
             case bool
             when '0', 'no', 'false' then false
@@ -313,7 +313,7 @@ module HTTP
           rule(numeric: simple(:numeric)) { Integer(numeric) }
           rule(date: simple(:date))       { Date.parse(date) }
           rule(uri: simple(:uri))         { URI.parse(uri)   }
-  
+
           rule(name: simple(:name)) do
             {name.to_s.downcase.tr('-','_').to_sym => true}
           end
@@ -327,15 +327,15 @@ module HTTP
             end
           end
         end
-  
+
         def parse(string)
           Transform.new.apply(super(string))
         end
-  
+
         def self.parse(string)
           new.parse(string)
         end
-  
+
       end
     end
   end
