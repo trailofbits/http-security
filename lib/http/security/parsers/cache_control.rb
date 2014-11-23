@@ -28,7 +28,7 @@ module HTTP
         root :cache_control
 
         rule(:cache_control_values) do
-          cc_public       |
+            cc_public       |
             cc_private      |
             no_cache        |
             no_store        |

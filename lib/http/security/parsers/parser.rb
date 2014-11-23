@@ -204,9 +204,9 @@ module HTTP
         # quoted-pair    = "\" ( WSP / VCHAR / obs-text )
         #
         rule(:header_extension) do
-          ( extension_token >> equals >> ( extension_token | quoted_string) )
+          ( token >> equals >> ( token | quoted_string) )
         end
-        rule(:extension_token) { extension_token_char.repeat }
+        rule(:token) { token_char.repeat }
 
         rule(:quoted_string) do
           d_quote >> quoted_string_text >> d_quote
@@ -284,7 +284,7 @@ module HTTP
         end
 
         #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
-        rule(:extension_token_char) do
+        rule(:token_char) do
           match["\x21"]      |
           match["\x23-\x27"] |
           match["\x2a-\x2b"] |
@@ -299,7 +299,7 @@ module HTTP
         #
         # URI Elements
         #
-        rule(:scheme)    { ( alpha | digit | match("[+-.]") ).repeat }
+        rule(:scheme)    { ( alpha | digit ).repeat }
         rule(:host_name) { ( alnum | match("[-_.]") ).repeat(1)      }
 
         class Transform < Parslet::Transform
