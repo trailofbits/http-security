@@ -20,7 +20,7 @@ module HTTP
       attr_reader :pragma
 
       # The parsed `Strict-Transport-Security` header.
-      attr_reader :strict_trasnport_security
+      attr_reader :strict_transport_security
 
       # The parsed `X-Content-Type-Options` header.
       attr_reader :x_content_type_options
