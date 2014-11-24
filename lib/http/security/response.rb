@@ -90,7 +90,7 @@ module HTTP
       end
 
       HEADERS = [
-        [:content_control, 'Cache-Control', Parsers::CacheControl],
+        [:cache_control, 'Cache-Control', Parsers::CacheControl],
         [:content_security_policy, 'Content-Security-Policy', Parsers::ContentSecurityPolicy],
         [:content_security_policy_report_only, 'Content-Security-Policy-Report-Only', Parsers::ContentSecurityPolicyReportOnly],
         [:expires, 'Expires', Parsers::Expires],
