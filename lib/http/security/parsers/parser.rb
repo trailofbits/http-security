@@ -172,12 +172,42 @@ module HTTP
 
         rule(:uri) {
           (
-            scheme.as(:scheme) >> str(":") >> str("//").maybe >>
-            (user_info.as(:user_info) >> str("@")).maybe >>
-            host_name.as(:host) >>
-            (str(":") >> digits.as(:port)).maybe >>
+            scheme >> str(":") >> str("//").maybe >>
+            (user_info >> str("@")).maybe >>
+            host_name >>
+            (str(":") >> digits).maybe >>
             uri_path
           ).as(:uri)
+        }
+
+        rule(:user_info) {
+          (
+            unreserved | pct_encoded | sub_delims | str(":")
+          ).repeat(0)
+        }
+
+        rule(:unreserved) { alpha | digit | str("-") | str(".") | str("_") | str("~") }
+        rule(:pct_encoded) { str("%") >> hex_digit >> hex_digit }
+        rule(:sub_delims) do
+          str("!") | str("$") | str("&") | str("'") | str("(") | str(")") |
+            str("*") | str("+") | str(",") | str(";") | str("=")
+        end
+        rule(:pathchar) { unreserved | pct_encoded | sub_delims | str("@") }
+
+
+        rule(:fragment) { (pathchar | str("/") | str("?")).repeat(0) }
+        rule(:query) { fragment }
+        rule(:path) { pathchar.repeat(1) >> (str('/') >> pathchar.repeat).repeat }
+
+        rule(:paramchar) { str(";").absent? >> pathchar }
+        rule(:param) { (paramchar).repeat }
+        rule(:params) { param >> (str(';') >> param).repeat }
+
+        rule(:uri_path) {
+          (str('/').maybe >> path.maybe) >>
+          (str(';') >> params).maybe >>
+          (str('?') >> query).maybe >>
+          (str('#') >> fragment).maybe
         }
 
         #
@@ -185,7 +215,7 @@ module HTTP
         #
         rule(:digit) { match["0-9"] }
         rule(:digits) { digit.repeat(1) }
-        rule(:xdigit) { digit | match["a-fA-F"] }
+        rule(:hex_digit) { digit | match['a-fA-F'] }
         rule(:upper) { match["A-Z"] }
         rule(:lower) { match["a-z"] }
         rule(:alpha) { upper | lower }
@@ -312,7 +342,9 @@ module HTTP
           end
           rule(numeric: simple(:numeric)) { Integer(numeric) }
           rule(date: simple(:date))       { Date.parse(date) }
-          rule(uri: simple(:uri))         { URI.parse(uri)   }
+          rule(uri: simple(:uri))         {
+            URI.parse(uri)
+          }
 
           rule(name: simple(:name)) do
             {name.to_s.downcase.tr('-','_').to_sym => true}
@@ -320,12 +352,18 @@ module HTTP
           rule(name: simple(:name), value: simple(:value)) do
             {name.to_s.downcase.tr('-','_').to_sym => value}
           end
+
+          rule(name: simple(:name), values: subtree(:values)) do
+            {name.to_s.downcase.tr('-','_').to_sym => values}
+          end
+
           rule(directives: subtree(:hashes)) do
             case hashes
             when Array then hashes.reduce(&:merge!)
             else            hashes
             end
           end
+
         end
 
         def parse(string)

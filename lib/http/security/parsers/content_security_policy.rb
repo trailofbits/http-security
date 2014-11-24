@@ -46,9 +46,7 @@ module HTTP
           stri("media-src")   |
           stri("frame-src")   |
           stri("font-src")    |
-          stri("connect-src") |
-          stri("sandbox")     |
-          stri("report-uri")
+          stri("connect-src")
         end
 
         # Source list
@@ -114,7 +112,7 @@ module HTTP
         # directive-value   = uri-reference *( 1*WSP uri-reference )
         # uri-reference     = <URI-reference from RFC 3986>
         rule(:report_uri) do
-          stri("report-uri").as(:name) >> (uri >> uri.repeat(0)).as(:value)
+          stri("report-uri").as(:name) >> wsp.repeat(1) >> (uri >> (wsp.repeat(1) >> uri).repeat(0)).as(:values)
         end
 
         # sandbox (Optional)
@@ -122,7 +120,7 @@ module HTTP
         # directive-value   = token *( 1*WSP token )
         # token             = <token from RFC 2616>
         rule(:sandbox) do
-          stri("sandbox").as(:name) >> (token >> token.repeat(0)).as(:value)
+          stri("sandbox").as(:name) >> wsp.repeat(1) >> (token >> (wsp.repeat(1) >> token).repeat(0)).as(:value)
         end
       end
     end
