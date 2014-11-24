@@ -30,10 +30,10 @@ Currently parsed security headers are:
     headers = HTTP::Security::Response.parse(response)
 
     headers.cache_control
-    # => 
+    # => {:no_cache=>true, :no_store=>true, :must_revalidate=>true}
 
     headers.content_security_policy
-    # => 
+    # => {:default_src=>"https:"@12, :connect_src=>"https:"@32, :font_src=>"https: data:"@49, :frame_src=>"https: twitter:"@73, :img_src=>"https: data:"@98, :media_src=>"https:"@122, :object_src=>"https:"@141, :script_src=>"'unsafe-inline' 'unsafe-eval' https:"@160, :style_src=>"'unsafe-inline' https:"@208, :report_uri=>#<URI::HTTPS:0x000000038addf8 URL:https://twitter.com/i/csp_report?a=NVQWGYLXFVZXO2LGOQ%3D%3D%3D%3D%3D%3D&ro=false;>}
 
     headers.expires
     # => #<Date: 1981-03-31 ((2444695j,0s,0n),+0s,2299161j)>
@@ -42,7 +42,7 @@ Currently parsed security headers are:
     # => {:no_cache=>true}
 
     headers.strict_transport_security
-    # => 
+    # => {:max_age=>631138519}
 
     headers.x_content_type_options
     # => {:nosniff=>true}
