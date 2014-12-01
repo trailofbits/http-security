@@ -172,7 +172,7 @@ module HTTP
 
         rule(:uri) {
           (
-            scheme >> str(":") >> str("//").maybe >>
+            scheme_fragment.maybe >>
             (user_info >> str("@")).maybe >>
             host_name >>
             (str(":") >> digits).maybe >>
@@ -192,14 +192,14 @@ module HTTP
           str("!") | str("$") | str("&") | str("'") | str("(") | str(")") |
             str("*") | str("+") | str(",") | str(";") | str("=")
         end
-        rule(:pathchar) { unreserved | pct_encoded | sub_delims | str("@") }
+        rule(:pchar) { unreserved | pct_encoded | sub_delims | str("@") | str(":") }
 
 
-        rule(:fragment) { (pathchar | str("/") | str("?")).repeat(0) }
+        rule(:fragment) { (pchar | str("/") | str("?")).repeat(0) }
         rule(:query) { fragment }
-        rule(:path) { pathchar.repeat(1) >> (str('/') >> pathchar.repeat).repeat }
+        rule(:path) { pchar.repeat(1) >> (str('/') >> pchar.repeat).repeat }
 
-        rule(:paramchar) { str(";").absent? >> pathchar }
+        rule(:paramchar) { str(";").absent? >> pchar }
         rule(:param) { (paramchar).repeat }
         rule(:params) { param >> (str(';') >> param).repeat }
 
@@ -329,8 +329,9 @@ module HTTP
         #
         # URI Elements
         #
+        rule (:scheme_fragment) { (scheme >> str(":") >> str("//")).maybe }
         rule(:scheme)    { ( alpha | digit ).repeat }
-        rule(:host_name) { ( alnum | match("[-_.]") ).repeat(1)      }
+        rule(:host_name) { ( alnum | match("[-_.]") ).repeat(1) }
 
         class Transform < Parslet::Transform
 
