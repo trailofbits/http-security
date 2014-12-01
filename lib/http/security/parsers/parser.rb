@@ -342,7 +342,7 @@ module HTTP
             end
           end
           rule(numeric: simple(:numeric)) { Integer(numeric) }
-          rule(date: simple(:date))       { Date.parse(date) }
+          rule(date: simple(:date))       { Date.parse(date.to_s) }
           rule(uri: simple(:uri))         {
             URI.parse(uri)
           }
