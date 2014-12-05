@@ -29,7 +29,8 @@ module HTTP
         root :strict_transport_security
 
         rule(:stp_header_extension) do
-          include_subdomains | ( token >> equals >> ( token | quoted_string) )
+          include_subdomains |
+          token >> (equals >> (token | quoted_string)).maybe
         end
 
         rule(:include_subdomains) do
