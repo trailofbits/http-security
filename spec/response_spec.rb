@@ -84,7 +84,7 @@ describe Response do
 
               expect {
                 described_class.parse(response)
-              }.to_not raise_error
+              }.to_not raise_error(Parslet::ParseError)
             rescue => error
               pending error.message
             end
