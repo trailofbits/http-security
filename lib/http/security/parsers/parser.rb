@@ -255,14 +255,6 @@ module HTTP
           str('"') >> ascii
         end
 
-        rule(:vchar) do
-          match["\x20-\x7f"]
-        end
-
-        rule(:obs_text) do
-          match["\x80-\xFF"]
-        end
-
         rule(:field_name) do
           valid_field_name | ( d_quote >> valid_field_name >> d_quote )
         end
