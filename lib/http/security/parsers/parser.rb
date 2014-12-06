@@ -210,8 +210,14 @@ module HTTP
           (str('#') >> fragment).maybe
         }
 
+        rule(:header_extension) do
+          token >> (equals >> ( token | quoted_string)).maybe
+        end
+
         #
-        # Character Classes
+        # Basic Rules
+        #
+        # RFC 2616, Section 2.2
         #
         rule(:digit) { match["0-9"] }
         rule(:digits) { digit.repeat(1) }
@@ -225,39 +231,28 @@ module HTTP
         rule(:alphanum) { alpha | digit }
         rule(:wsp) { match[" \t"] }
         rule(:wsp?) { wsp.repeat }
+        rule(:crlf)  { str("\r\n") }
+        rule(:lws) { crlf.maybe >> wsp.repeat(1) }
 
-        #
-        # Cache Control Helpers
-        # quoted-string  = DQUOTE *( qdtext / quoted-pair ) DQUOTE
-        # qdtext         = OWS / %x21 / %x23-5B / %x5D-7E / obs-text
-        # obs-text       = %x80-FF
-        # quoted-pair    = "\" ( WSP / VCHAR / obs-text )
-        #
-        rule(:header_extension) do
-          ( token >> equals >> ( token | quoted_string) )
+        #1*<any (US-ASCII) CHAR except SPACE, CTLs, or separators>
+        rule(:token) do
+          match[
+            # 
+            '^\x00-\x1f\x7f' +                      # no CTLs
+            '\x20' +                                # no SPACE
+            Regexp.escape("()<>@,;:\\\"/[]?={} \t") # no separators
+          ].repeat(1)
         end
-        rule(:token) { token_char.repeat }
 
         rule(:quoted_string) do
-          d_quote >> quoted_string_text >> d_quote
+          d_quote >> (qdtext | quoted_pair).repeat(0) >> d_quote
         end
-
-        rule(:quoted_string_text) do
-          qdtext | quoted_pair
-        end
-
         rule(:qdtext) do
-          (
-            wsp                |
-            match["\x21"]      |
-            match["\x23-\x5B"] |
-            match["\x5D-\x7E"] |
-            obs_text
-          ).repeat(1)
+          match['^\x00-\x1f\x22\x7f'] | lws
         end
 
         rule(:quoted_pair) do
-          (wsp | obs_text | vchar).repeat(1)
+          str('"') >> ascii
         end
 
         rule(:vchar) do
@@ -311,19 +306,6 @@ module HTTP
             stri("WWW-Authenticate")          |
             stri("X-Frame-Options")
           ).as(:field)
-        end
-
-        #1*<any (US-ASCII) CHAR except SPACE, CTLs, or tspecials>
-        rule(:token_char) do
-          match["\x21"]      |
-          match["\x23-\x27"] |
-          match["\x2a-\x2b"] |
-          match["#{Regexp.escape("\x2d")}-\x2e"] |
-          match["\x30-\x39"] |
-          match["\x41-\x5a"] |
-          match["\x5f-\x7a"] |
-          match["\x7c"]      |
-          match["\x7e"]
         end
 
         #

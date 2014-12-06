@@ -31,4 +31,26 @@ describe Parsers::StrictTransportSecurity do
       max_age: 0
     }
   end
+
+  describe "stp_header_extension" do
+    subject { super().stp_header_extension }
+
+    it "accepts includedSubdomains" do
+      expect(subject.parse('includeSubDomains')).to be == {
+        name: "includeSubDomains"
+      }
+    end
+
+    it "accepts token" do
+      expect(subject.parse("preload")).to be == "preload"
+    end
+
+    it "accepts token=token" do
+      expect(subject.parse("foo=bar")).to be == "foo=bar"
+    end
+
+    it "accepts token=\"string\"" do
+      expect(subject.parse('foo="string"')).to be == 'foo="string"'
+    end
+  end
 end
