@@ -188,10 +188,7 @@ module HTTP
 
         rule(:unreserved) { alpha | digit | str("-") | str(".") | str("_") | str("~") }
         rule(:pct_encoded) { str("%") >> hex_digit >> hex_digit }
-        rule(:sub_delims) do
-          str("!") | str("$") | str("&") | str("'") | str("(") | str(")") |
-            str("*") | str("+") | str(",") | str(";") | str("=")
-        end
+        rule(:sub_delims) { match[Regexp.escape("!$&'()*+,;=")] }
         rule(:pchar) { unreserved | pct_encoded | sub_delims | str("@") | str(":") }
 
 
@@ -221,14 +218,13 @@ module HTTP
         #
         rule(:digit) { match["0-9"] }
         rule(:digits) { digit.repeat(1) }
-        rule(:hex_digit) { digit | match['a-fA-F'] }
-        rule(:upper) { match["A-Z"] }
-        rule(:lower) { match["a-z"] }
-        rule(:alpha) { upper | lower }
-        rule(:alnum) { alpha | digit }
+        rule(:hex_digit) { match['0-9a-fA-F'] }
+        rule(:upper) { match['A-Z'] }
+        rule(:lower) { match['a-z'] }
+        rule(:alpha) { match['a-zA-Z'] }
+        rule(:alnum) { match['a-zA-Z0-9'] }
         rule(:cntrl) { match["\x00-\x1f"] }
         rule(:ascii) { match["\x00-\x7f"] }
-        rule(:alphanum) { alpha | digit }
         rule(:wsp) { match[" \t"] }
         rule(:wsp?) { wsp.repeat }
         rule(:crlf)  { str("\r\n") }
