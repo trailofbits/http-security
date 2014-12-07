@@ -99,7 +99,7 @@ module HTTP
         [:x_content_type_options, 'X-Content-Type-Options', Parsers::XContentTypeOptions],
         [:x_frame_options, 'X-Frame-Options', Parsers::XFrameOptions],
         [:x_permitted_cross_domain_policies, 'X-Permitted-Cross-Domain-Policies', Parsers::XPermittedCrossDomainPolicies],
-        [:x_xss_protection, 'X-XSS-Protection', Parsers::XXSSProtection]
+        [:x_xss_protection, 'X-Xss-Protection', Parsers::XXSSProtection]
       ].freeze
 
       #
