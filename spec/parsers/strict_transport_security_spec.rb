@@ -14,7 +14,7 @@ describe Parsers::StrictTransportSecurity do
     expect(subject.parse(header)).to eq(max_age: 0)
   end
 
-  it "accepts max-age then includeSubdomains" do
+  it "accepts max-age then includeSubDomains" do
     header = "max-age=0; includeSubDomains"
 
     expect(subject.parse(header)).to be == {
@@ -23,7 +23,7 @@ describe Parsers::StrictTransportSecurity do
     }
   end
 
-  it "accepts includeSubdomains then max-age" do
+  it "accepts includeSubDomains then max-age" do
     header = "includeSubDomains; max-age=0"
 
     expect(subject.parse(header)).to be == {
