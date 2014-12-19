@@ -48,7 +48,7 @@ module HTTP
         rule(:secure_av) { stri('Secure').as(:secure) }
         rule(:httponly_av) { stri('HttpOnly').as(:http_only) }
         # <any CHAR except CTLs or ";">
-        rule(:extension_av) { match['^\x00-\x1f\x7f;'] }
+        rule(:extension_av) { match['^\x00-\x1f\x7f;'].repeat(0) }
 
       end
     end
