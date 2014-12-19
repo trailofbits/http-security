@@ -299,7 +299,7 @@ module HTTP
         #
         # URI Elements
         #
-        rule (:scheme_fragment) { (scheme >> str(":") >> str("//")).maybe }
+        rule(:scheme_fragment) { (scheme >> str(":") >> str("//")).maybe }
         rule(:scheme)    { ( alpha | digit ).repeat }
         rule(:host_name) { ( alnum | match("[-_.]") ).repeat(1) }
 
@@ -313,9 +313,7 @@ module HTTP
           end
           rule(numeric: simple(:numeric)) { Integer(numeric) }
           rule(date: simple(:date))       { Date.parse(date.to_s) }
-          rule(uri: simple(:uri))         {
-            URI.parse(uri)
-          }
+          rule(uri: simple(:uri))         { URI.parse(uri) }
 
           rule(name: simple(:name)) do
             {name.to_s.downcase.tr('-','_').to_sym => true}
