@@ -62,6 +62,9 @@ module HTTP
       # @option options [Hash] :strict_transport_security
       #   The parsed `Strict-Transport-Security` header.
       #
+      # @option options [Hash] :set_cookie
+      #   The parsed `Set-Cookie` header.
+      #
       # @option options [Hash] :x_content_type_options
       #   The parsed `X-Content-Type-Options` header.
       #
@@ -83,6 +86,7 @@ module HTTP
         @expires = headers[:expires]
         @pragma = headers[:pragma]
         @strict_transport_security = headers[:strict_transport_security]
+        @set_cookie = headers[:set_cookie]
         @x_content_type_options = headers[:x_content_type_options]
         @x_frame_options = headers[:x_frame_options]
         @x_permitted_cross_domain_policies = headers[:x_permitted_cross_domain_policies]
@@ -96,6 +100,7 @@ module HTTP
         [:expires, 'Expires', Parsers::Expires],
         [:pragma, 'Pragma', Parsers::Pragma],
         [:strict_transport_security, 'Strict-Transport-Security', Parsers::StrictTransportSecurity],
+        [:set_cookie, 'Set-Cookie', Parsers::SetCookie],
         [:x_content_type_options, 'X-Content-Type-Options', Parsers::XContentTypeOptions],
         [:x_frame_options, 'X-Frame-Options', Parsers::XFrameOptions],
         [:x_permitted_cross_domain_policies, 'X-Permitted-Cross-Domain-Policies', Parsers::XPermittedCrossDomainPolicies],
