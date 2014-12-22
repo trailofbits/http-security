@@ -59,6 +59,10 @@ describe Response do
       expect(subject.pragma).to_not be_nil
     end
 
+    it "should parse Set-Cookie" do
+      expect(subject.set_cookie).to_not be_nil
+    end
+
     it "should parse Strict-Transport-Security" do
       expect(subject.strict_transport_security).to_not be_nil
     end

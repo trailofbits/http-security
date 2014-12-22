@@ -19,6 +19,9 @@ module HTTP
       # The parsed `Pragma` header.
       attr_reader :pragma
 
+      # The parsed `Set-Cookie` header.
+      attr_reader :set_cookie
+
       # The parsed `Strict-Transport-Security` header.
       attr_reader :strict_transport_security
 
@@ -62,7 +65,7 @@ module HTTP
       # @option options [Hash] :strict_transport_security
       #   The parsed `Strict-Transport-Security` header.
       #
-      # @option options [Hash] :set_cookie
+      # @option options [Array<Hash>] :set_cookie
       #   The parsed `Set-Cookie` header.
       #
       # @option options [Hash] :x_content_type_options
