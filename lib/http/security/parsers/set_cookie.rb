@@ -7,6 +7,10 @@ module HTTP
 
         root :set_cookie
         rule(:set_cookie) do
+          cookie >> (str(', ') >> cookie).repeat(0)
+        end
+
+        rule(:cookie) do
           (
             cookie_pair.as(:cookie) >> (str('; ') >> cookie_av).repeat(0)
           ).as(:directives)
