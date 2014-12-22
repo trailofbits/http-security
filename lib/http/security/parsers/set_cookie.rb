@@ -7,7 +7,7 @@ module HTTP
 
         root :set_cookie
         rule(:set_cookie) do
-          cookie >> (str(', ') >> cookie).repeat(0)
+          (cookie >> (str(', ') >> cookie).repeat(0)).as(:list)
         end
 
         rule(:cookie) do

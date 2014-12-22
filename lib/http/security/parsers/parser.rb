@@ -315,6 +315,9 @@ module HTTP
           rule(date: simple(:date))       { Date.parse(date.to_s) }
           rule(uri: simple(:uri))         { URI.parse(uri) }
 
+          rule(list: simple(:element))  { [element] }
+          rule(list: subtree(:element)) { [element] }
+
           rule(name: simple(:name)) do
             {name.to_s.downcase.tr('-','_').to_sym => true}
           end
