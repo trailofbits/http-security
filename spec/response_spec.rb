@@ -15,6 +15,7 @@ describe Response do
         "Cache-Control" => "no-cache, no-store, must-revalidate, pre-check=0, post-check=0",
         "Content-Length" => "12682",
         "Content-Security-Policy" => "default-src https:; connect-src https:; font-src https: data:; frame-src https: twitter:; img-src https: data:; media-src https:; object-src https:; script-src 'unsafe-inline' 'unsafe-eval' https:; style-src 'unsafe-inline' https:; report-uri https://twitter.com/i/csp_report?a=NVQWGYLXFVZXO2LGOQ%3D%3D%3D%3D%3D%3D&ro=false;",
+        "Content-Security-Policy-Report-Only" => "default-src https:; connect-src https:; font-src https: data:; frame-src https: twitter:; img-src https: data:; media-src https:; object-src https:; script-src 'unsafe-inline' 'unsafe-eval' https:; style-src 'unsafe-inline' https:; report-uri https://twitter.com/i/csp_report?a=NVQWGYLXFVZXO2LGOQ%3D%3D%3D%3D%3D%3D&ro=false;",
         "Content-Type" => "text/html;charset=utf-8",
         "Date" => "Thu, 20 Nov 2014 00:27:36 UTC",
         "Expires" => "Tue, 31 Mar 1981 05:00:00 GMT",
@@ -30,6 +31,7 @@ describe Response do
         "X-Content-Type-Options" => "nosniff",
         "X-Frame-Options" => "SAMEORIGIN",
         "X-Transaction" => "a0c1a67d4d799176",
+        "X-Permitted-Cross-Domain-Policies" => "none",
         "X-Ua-Compatible" => "IE=edge,chrome=1",
         "X-Xss-Protection" => "1; mode=block"
       }
@@ -38,33 +40,43 @@ describe Response do
     subject { described_class.parse(response) }
 
     it "should parse Cache-Control" do
+      expect(subject.cache_control).to_not be_nil
     end
 
     it "should parse Content-Security-Policy" do
+      expect(subject.content_security_policy).to_not be_nil
     end
 
     it "should parse Content-Security-Policy-Report-Only" do
+      expect(subject.content_security_policy_report_only).to_not be_nil
     end
 
     it "should parse Expires" do
+      expect(subject.expires).to_not be_nil
     end
 
     it "should parse Pragma" do
+      expect(subject.pragma).to_not be_nil
     end
 
     it "should parse Strict-Transport-Security" do
+      expect(subject.strict_transport_security).to_not be_nil
     end
 
     it "should parse X-Content-Type-Options" do
+      expect(subject.x_content_type_options).to_not be_nil
     end
 
     it "should parse X-Frame-Options" do
+      expect(subject.x_frame_options).to_not be_nil
     end
 
     it "should parse X-Permitted-Cross-Domain-Policies" do
+      expect(subject.x_permitted_cross_domain_policies).to_not be_nil
     end
 
     it "should parse X-XSS-Protection" do
+      expect(subject.x_xss_protection).to_not be_nil
     end
 
     context "Alexa 100", :gauntlet do
