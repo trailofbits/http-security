@@ -316,7 +316,12 @@ module HTTP
           rule(uri: simple(:uri))         { URI.parse(uri) }
 
           rule(list: simple(:element))  { [element] }
-          rule(list: subtree(:element)) { [element] }
+          rule(list: subtree(:elements)) do
+            case elements
+            when Array then elements
+            else            [elements]
+            end
+          end
 
           rule(name: simple(:name)) do
             {name.to_s.downcase.tr('-','_').to_sym => true}
