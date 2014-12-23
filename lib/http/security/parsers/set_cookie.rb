@@ -39,7 +39,7 @@ module HTTP
         end
 
         rule(:expires_av) { stri('Expires=') >> sane_cookie_date.as(:expires) }
-        rule(:sane_cookie_date) { rfc1123_date }
+        rule(:sane_cookie_date) { http_date }
         rule(:max_age_av) do
           stri('Max-Age=') >> (non_zero_digit >> digit.repeat(0)).as(:max_age)
         end
