@@ -27,7 +27,7 @@ describe Parsers::Parser do
 
 
   describe "#uri" do
-    let (:transform) { Parsers::Parser::Transform.new }
+    let(:transform) { Parsers::Parser::Transform.new }
     subject { super().uri }
 
     it "parses a uri without a scheme specified" do

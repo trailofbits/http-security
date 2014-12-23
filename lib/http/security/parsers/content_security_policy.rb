@@ -91,7 +91,7 @@ module HTTP
           str("*")
         end
 
-        rule (:host_char) do
+        rule(:host_char) do
           alnum | str("-")
         end
 
