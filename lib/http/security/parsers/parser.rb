@@ -92,11 +92,11 @@ module HTTP
         end
 
         rule(:rfc1123_date) do
-          wkday >> str(",") >> wsp >> date1 >> wsp >> time >> wsp >> str("GMT")
+          wkday >> str(",") >> wsp >> date1 >> wsp >> time >> wsp >> zone
         end
 
         rule(:rfc850_date) do
-          weekday >> str(",") >> wsp >> date2 >> wsp >> time >> wsp >> str("GMT")
+          weekday >> str(",") >> wsp >> date2 >> wsp >> time >> wsp >> zone
         end
 
         rule(:asctime_date) do
@@ -121,6 +121,20 @@ module HTTP
         #00:00:00 - 23:59:59
         rule(:time) do
           two_digit >> str(":") >> two_digit >> str(":") >> two_digit
+        end
+
+        rule(:zone) do
+          str('UT') | str('GMT')  | # Universal Time
+                                    # North American : UT
+          str('EST') | str('EDT') | #   Eastern:  - 5/ - 4
+          str('CST') | str('CDT') | #   Central:  - 6/ - 5
+          str('MST') | str('MDT') | #   Mountain: - 7/ - 6
+          str('PST') | str('PDT') | #   Pacific:  - 8/ - 7
+          alpha |                   # Military: Z = UT;
+                                    #   A:-1; (J not used)
+                                    #   M:-12; N:+1; Y:+12
+          match['+-'] >> four_digit # Local differential
+                                    #   hours+min. (HHMM)
         end
 
         rule(:four_digit) do
