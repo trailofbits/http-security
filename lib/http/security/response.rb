@@ -27,6 +27,9 @@ module HTTP
       # The parsed `Strict-Transport-Security` header.
       attr_reader :strict_transport_security
 
+      # The parsed `Public-Key-Pins` header.
+      attr_reader :public_key_pins
+
       # The parsed `X-Content-Type-Options` header.
       attr_reader :x_content_type_options
       alias content_type_options x_content_type_options
@@ -70,6 +73,8 @@ module HTTP
       # @option options [Array<Hash>] :set_cookie
       #   The parsed `Set-Cookie` header.
       #
+      # @option options [Hash] :public_key_pins
+      #
       # @option options [Hash] :x_content_type_options
       #   The parsed `X-Content-Type-Options` header.
       #
@@ -92,6 +97,7 @@ module HTTP
         @pragma = headers[:pragma]
         @strict_transport_security = headers[:strict_transport_security]
         @set_cookie = headers[:set_cookie]
+        @public_key_pins = headers[:public_key_pins]
         @x_content_type_options = headers[:x_content_type_options]
         @x_frame_options = headers[:x_frame_options]
         @x_permitted_cross_domain_policies = headers[:x_permitted_cross_domain_policies]
@@ -105,6 +111,7 @@ module HTTP
         'Content-Security-Policy-Report-Only' => Parsers::ContentSecurityPolicyReportOnly,
         'Expires'                             => Parsers::Expires,
         'Pragma'                              => Parsers::Pragma,
+        'Public-Key-Pins'                     => Parsers::PublicKeyPins,
         'Strict-Transport-Security'           => Parsers::StrictTransportSecurity,
         'Set-Cookie'                          => Parsers::SetCookie,
         'X-Content-Type-Options'              => Parsers::XContentTypeOptions,
@@ -120,6 +127,7 @@ module HTTP
         'Content-Security-Policy-Report-Only' => Headers::ContentSecurityPolicyReportOnly,
         'Expires'                             => nil,
         'Pragma'                              => Headers::Pragma,
+        'Public-Key-Pins'                     => Headers::PublicKeyPins,
         'Strict-Transport-Security'           => Headers::StrictTransportSecurity,
         'Set-Cookie'                          => Headers::SetCookie,
         'X-Content-Type-Options'              => Headers::XContentTypeOptions,
@@ -135,6 +143,7 @@ module HTTP
         'Content-Security-Policy-Report-Only' => :content_security_policy_report_only,
         'Expires'                             => :expires,
         'Pragma'                              => :pragma,
+        'Public-Key-Pins'                     => :public_key_pins,
         'Strict-Transport-Security'           => :strict_transport_security,
         'Set-Cookie'                          => :set_cookie,
         'X-Content-Type-Options'              => :x_content_type_options,
