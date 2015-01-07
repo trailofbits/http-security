@@ -15,5 +15,5 @@ addons:
   code_climate:
     repo_token: 4e8013e9105e3dd8153da54825ce8fab58c7408dce36fa351ef35c51bb9b0b05
 notifications:
-  webhooks:
-    secure: TNyMy6iZ/wfL8UQ48a9jM3bgZZ+9oYG/uPHw3qCQEJi9Pi5m5vmB+OKSyOIy4P26svptAvG3Um09PiBIS/isvJAu2zCEbDmjgfuPCt31Lb0oAk7rP0fY38AYjd2dVNxxJJekP8hhqkAqMpv7ENXNuMUGOfQaGyR3U+mixu0ZclA=
+  slack:
+    secure: awgcYPnPALqyAn3H58d+qzQYezzEyuqr71GmU9AsXuOa3sGM1JVqmUOqgoXeykBcV8EV5DEO+65fCkc+GnBxyPjnyYyvzW7VEcj3xQdxyVgn9fK0a76Mp+ywoWOPG7t4Z8dIK3PCT12QO+XgGWiLA9YG10eRtGRRD1V2PCKv41Y=
