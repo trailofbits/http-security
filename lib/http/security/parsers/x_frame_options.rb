@@ -15,7 +15,7 @@ module HTTP
         # Only one can be present
         rule(:x_frame_options) do
           (
-            deny | same_origin | allow_from
+            (deny | same_origin | allow_from).repeat(1)
           ).as(:directives)
         end
         root :x_frame_options
