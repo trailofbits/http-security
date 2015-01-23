@@ -1,4 +1,5 @@
 require 'http/security/parsers'
+require 'http/security/malformed_header'
 
 module HTTP
   module Security
@@ -96,19 +97,33 @@ module HTTP
         @x_xss_protection = headers[:x_xss_protection]
       end
 
-      HEADERS = [
-        [:cache_control, 'Cache-Control', Parsers::CacheControl],
-        [:content_security_policy, 'Content-Security-Policy', Parsers::ContentSecurityPolicy],
-        [:content_security_policy_report_only, 'Content-Security-Policy-Report-Only', Parsers::ContentSecurityPolicyReportOnly],
-        [:expires, 'Expires', Parsers::Expires],
-        [:pragma, 'Pragma', Parsers::Pragma],
-        [:strict_transport_security, 'Strict-Transport-Security', Parsers::StrictTransportSecurity],
-        [:set_cookie, 'Set-Cookie', Parsers::SetCookie],
-        [:x_content_type_options, 'X-Content-Type-Options', Parsers::XContentTypeOptions],
-        [:x_frame_options, 'X-Frame-Options', Parsers::XFrameOptions],
-        [:x_permitted_cross_domain_policies, 'X-Permitted-Cross-Domain-Policies', Parsers::XPermittedCrossDomainPolicies],
-        [:x_xss_protection, 'X-Xss-Protection', Parsers::XXSSProtection]
-      ].freeze
+      PARSERS = {
+        'Cache-Control'                       => Parsers::CacheControl,
+        'Content-Security-Policy'             => Parsers::ContentSecurityPolicy,
+        'Content-Security-Policy-Report-Only' => Parsers::ContentSecurityPolicyReportOnly,
+        'Expires'                             => Parsers::Expires,
+        'Pragma'                              => Parsers::Pragma,
+        'Strict-Transport-Security'           => Parsers::StrictTransportSecurity,
+        'Set-Cookie'                          => Parsers::SetCookie,
+        'X-Content-Type-Options'              => Parsers::XContentTypeOptions,
+        'X-Frame-Options'                     => Parsers::XFrameOptions,
+        'X-Permitted-Cross-Domain-Policies'   => Parsers::XPermittedCrossDomainPolicies,
+        'X-Xss-Protection'                    => Parsers::XXSSProtection
+      }
+
+      HEADERS = {
+        'Cache-Control'                       => :cache_control,
+        'Content-Security-Policy'             => :content_security_policy,
+        'Content-Security-Policy-Report-Only' => :content_security_policy_report_only,
+        'Expires'                             => :expires,
+        'Pragma'                              => :pragma,
+        'Strict-Transport-Security'           => :strict_transport_security,
+        'Set-Cookie'                          => :set_cookie,
+        'X-Content-Type-Options'              => :x_content_type_options,
+        'X-Frame-Options'                     => :x_frame_options,
+        'X-Permitted-Cross-Domain-Policies'   => :x_permitted_cross_domain_policies,
+        'X-Xss-Protection'                    => :x_xss_protection
+      }
 
       #
       # Parses the HTTP security headers of a HTTP response.
@@ -124,13 +139,47 @@ module HTTP
       def self.parse(response)
         fields = {}
 
-        HEADERS.each do |name,header,parser|
-          if (value = response[header])
-            fields[name] = parser.parse(value)
+        HEADERS.each do |name,field|
+          if (value = response[name])
+            fields[field] = begin
+                              parse_header(name,value)
+                            rescue Parslet::ParseFailed => error
+                              MalformedHeader.new(value,error.cause)
+                            end
           end
         end
 
         return new(fields)
+      end
+
+      #
+      # Parses the HTTP security headers of a HTTP response.
+      #
+      # @param [#[]] response
+      #   An HTTP response object. Must provide access to headers via the `#[]`
+      #   method.
+      #
+      # @return [Response]
+      #
+      # @raise [Parslet::ParseFailed]
+      #   One of the headers was invalid.
+      #
+      # @api public
+      #
+      def self.parse!(response)
+        fields = {}
+
+        HEADERS.each do |name,field|
+          if (value = response[name])
+            fields[field] = parse_header(name,value)
+          end
+        end
+
+        return new(fields)
+      end
+
+      def self.parse_header(name,value)
+        PARSERS.fetch(name).parse(value)
       end
 
     end
