@@ -97,6 +97,7 @@ module HTTP
         @x_xss_protection = headers[:x_xss_protection]
       end
 
+      # Header names and their corresponding parsers.
       PARSERS = {
         'Cache-Control'                       => Parsers::CacheControl,
         'Content-Security-Policy'             => Parsers::ContentSecurityPolicy,
@@ -111,6 +112,7 @@ module HTTP
         'X-Xss-Protection'                    => Parsers::XXSSProtection
       }
 
+      # Header names and their corresponding fields.
       HEADERS = {
         'Cache-Control'                       => :cache_control,
         'Content-Security-Policy'             => :content_security_policy,
@@ -133,6 +135,7 @@ module HTTP
       #   method.
       #
       # @return [Response]
+      #   The parsed response.
       #
       # @api public
       #
@@ -162,7 +165,7 @@ module HTTP
       # @return [Response]
       #
       # @raise [Parslet::ParseFailed]
-      #   One of the headers was invalid.
+      #   One of the headers was malformed.
       #
       # @api public
       #
@@ -178,6 +181,21 @@ module HTTP
         return new(fields)
       end
 
+      #
+      # Parses an individual header.
+      #
+      # @param [String] name
+      #   The header name.
+      #
+      # @param [String] value
+      #   The raw value of the header.
+      #
+      # @return [Hash]
+      #   The parsed header data.
+      #
+      # @raise [Parslet::ParseFailed]
+      #   The header was malformed.
+      #
       def self.parse_header(name,value)
         PARSERS.fetch(name).parse(value)
       end
