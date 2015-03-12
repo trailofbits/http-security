@@ -48,7 +48,7 @@ module HTTP
 
             str << "; Path=#{@path}"                if @path
             str << "; Domain=#{@domain}"            if @domain
-            str << "; Expires=#{@expires.httpdate}" if @domain
+            str << "; Expires=#{@expires.httpdate}" if @expires
             str << "; Secure"                       if @secure
             str << "; HttpOnly"                     if @http_only
 
