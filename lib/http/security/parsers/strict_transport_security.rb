@@ -29,13 +29,11 @@ module HTTP
         root :strict_transport_security
 
         rule(:stp_header_extension) do
-          include_subdomains |
+          include_sub_domains |
           token >> (equals >> (token | quoted_string)).maybe
         end
 
-        rule(:include_subdomains) do
-          stri("includeSubDomains").as(:name)
-        end
+        directive_rule :include_sub_domains, 'includeSubDomains'
       end
     end
   end
