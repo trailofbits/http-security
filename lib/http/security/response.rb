@@ -1,4 +1,5 @@
 require 'http/security/parsers'
+require 'http/security/headers'
 require 'http/security/malformed_header'
 
 module HTTP
@@ -112,8 +113,23 @@ module HTTP
         'X-Xss-Protection'                    => Parsers::XXSSProtection
       }
 
-      # Header names and their corresponding fields.
+      # Header names and their corresponding classes
       HEADERS = {
+        'Cache-Control'                       => Headers::CacheControl,
+        'Content-Security-Policy'             => Headers::ContentSecurityPolicy,
+        'Content-Security-Policy-Report-Only' => Headers::ContentSecurityPolicyReportOnly,
+        'Expires'                             => nil,
+        'Pragma'                              => Headers::Pragma,
+        'Strict-Transport-Security'           => Headers::StrictTransportSecurity,
+        'Set-Cookie'                          => Headers::SetCookie,
+        'X-Content-Type-Options'              => Headers::XContentTypeOptions,
+        'X-Frame-Options'                     => Headers::XFrameOptions,
+        'X-Permitted-Cross-Domain-Policies'   => Headers::XPermittedCrossDomainPolicies,
+        'X-Xss-Protection'                    => Headers::XXSSProtection
+      }
+
+      # Header names and their corresponding fields.
+      FIELDS = {
         'Cache-Control'                       => :cache_control,
         'Content-Security-Policy'             => :content_security_policy,
         'Content-Security-Policy-Report-Only' => :content_security_policy_report_only,
@@ -124,7 +140,7 @@ module HTTP
         'X-Content-Type-Options'              => :x_content_type_options,
         'X-Frame-Options'                     => :x_frame_options,
         'X-Permitted-Cross-Domain-Policies'   => :x_permitted_cross_domain_policies,
-        'X-Xss-Protection'                    => :x_xss_protection
+        'X-Xss-Protection'                    => :x_xss_protection,
       }
 
       #
@@ -142,7 +158,7 @@ module HTTP
       def self.parse(response)
         fields = {}
 
-        HEADERS.each do |name,field|
+        FIELDS.each do |name,field|
           if (value = response[name])
             fields[field] = begin
                               parse_header(name,value)
@@ -172,7 +188,7 @@ module HTTP
       def self.parse!(response)
         fields = {}
 
-        HEADERS.each do |name,field|
+        FIELDS.each do |name,field|
           if (value = response[name])
             fields[field] = parse_header(name,value)
           end
@@ -197,7 +213,13 @@ module HTTP
       #   The header was malformed.
       #
       def self.parse_header(name,value)
-        PARSERS.fetch(name).parse(value)
+        value = PARSERS.fetch(name).parse(value)
+
+        if (header = HEADERS[name])
+          header.new(value)
+        else
+          value
+        end
       end
 
     end
