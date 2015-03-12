@@ -20,11 +20,14 @@ module HTTP
         end
 
         def to_s
-          [
-            "private"             if @private,
-            "max_age=#{@max_age}" if @max_age,
-            "no-cache"            if @no_cache
-          ].compact.join(', ')
+          directives = []
+
+
+          directives << "private"             if @private
+          directives << "max_age=#{@max_age}" if @max_age
+          directives << "no-cache"            if @no_cache
+
+          return directives.join(', ')
         end
 
       end

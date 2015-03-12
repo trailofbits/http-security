@@ -15,10 +15,12 @@ module HTTP
         end
 
         def to_str
-          [
-            "max-age=#{@max_age}" if @max_age,
-            "includeSubDomains" if @include_sub_domains
-          ].compact.join('; ')
+          directives = []
+
+          directives << "max-age=#{@max_age}" if @max_age
+          directives << "includeSubDomains"   if @include_sub_domains
+
+          return directives.join('; ')
         end
 
       end
