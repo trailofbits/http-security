@@ -14,7 +14,7 @@ module HTTP
           @include_sub_domains
         end
 
-        def to_str
+        def to_s
           directives = []
 
           directives << "max-age=#{@max_age}" if @max_age
