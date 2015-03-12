@@ -39,7 +39,7 @@ describe HTTP::Security::Headers::ContentSecurityPolicy do
   end
 
   describe "#to_s" do
-    it "should return a comma separated list of directives" do
+    it "should return a semicolon separated list of directives" do
       expect(subject.to_s).to be == "default-src #{default_src}; script-src #{script_src}; object-src #{object_src}; img-src #{img_src}"
     end
   end
