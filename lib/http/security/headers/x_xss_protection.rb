@@ -5,9 +5,12 @@ module HTTP
 
         attr_reader :mode
 
+        attr_reader :report
+
         def initialize(directives={})
           @enabled = directives[:enabled]
           @mode    = directives[:mode]
+          @report  = directives[:report]
         end
 
         def enabled?
@@ -19,7 +22,8 @@ module HTTP
                 else             '0'
                 end
 
-          str << "; mode=#{@mode}" if @mode
+          str << "; mode=#{@mode}"     if @mode
+          str << "; report=#{@report}" if @report
 
           return str
         end
