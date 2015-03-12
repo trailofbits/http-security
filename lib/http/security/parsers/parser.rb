@@ -1,5 +1,6 @@
+require 'http/security/http_date'
+
 require "parslet"
-require 'date'
 require 'uri'
 
 module HTTP
@@ -326,7 +327,7 @@ module HTTP
             end
           end
           rule(numeric: simple(:numeric)) { Integer(numeric) }
-          rule(date: simple(:date))       { Date.parse(date.to_s) }
+          rule(date: simple(:date))       { HTTPDate.parse(date.to_s) }
           rule(uri: simple(:uri))         { URI.parse(uri) }
 
           rule(list: simple(:element))  { [element] }
