@@ -15,22 +15,23 @@ describe Response do
     let(:name)  { 'Set-Cookie' }
     let(:value) { "_twitter_sess=BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa; Path=/; Domain=.twitter.com; Secure; HTTPOnly, guest_id=v1%3A141644325604142464; Domain=.twitter.com; Path=/; Expires=Sat, 19 Nov 2016 00:27:36 GMT" }
 
-    it "should parse the given headre" do
-      expect(subject.parse_header(name,value)).to be == [
-        {
-          cookie:    {:_twitter_sess=>"BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa"},
-          path:      "/",
-          domain:    ".twitter.com",
-          secure:    "Secure",
-          http_only: "HTTPOnly"
-        },
-        {
-          cookie:  {:guest_id=>"v1%3A141644325604142464"},
-          domain:  ".twitter.com",
-          path:    "/",
-          expires: Date.parse('Sat, 19 Nov 2016 00:27:36 GMT')
-        }
-      ]
+    subject { super().parse_header(name,value) }
+
+    it "should parse the given header" do
+      expect(subject).to be_kind_of(Headers::SetCookie)
+
+      expect(subject.cookies[0].name).to be == :_twitter_sess
+      expect(subject.cookies[0].value).to be == "BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa"
+      expect(subject.cookies[0].path).to be == '/'
+      expect(subject.cookies[0].domain).to be == '.twitter.com'
+      expect(subject.cookies[0]).to be_secure
+      expect(subject.cookies[0]).to be_http_only
+
+      expect(subject.cookies[1].name).to be == :guest_id
+      expect(subject.cookies[1].value).to be == 'v1%3A141644325604142464'
+      expect(subject.cookies[1].domain).to be == '.twitter.com'
+      expect(subject.cookies[1].path).to be == '/'
+      expect(subject.cookies[1].expires).to be == HTTPDate.parse('Sat, 19 Nov 2016 00:27:36 GMT')
     end
   end
 
@@ -65,47 +66,47 @@ describe Response do
     subject { described_class.parse(response) }
 
     it "should parse Cache-Control" do
-      expect(subject.cache_control).to_not be_nil
+      expect(subject.cache_control).to be_kind_of(Headers::CacheControl)
     end
 
     it "should parse Content-Security-Policy" do
-      expect(subject.content_security_policy).to_not be_nil
+      expect(subject.content_security_policy).to be_kind_of(Headers::ContentSecurityPolicy)
     end
 
     it "should parse Content-Security-Policy-Report-Only" do
-      expect(subject.content_security_policy_report_only).to_not be_nil
+      expect(subject.content_security_policy_report_only).to be_kind_of(Headers::ContentSecurityPolicyReportOnly)
     end
 
     it "should parse Expires" do
-      expect(subject.expires).to_not be_nil
+      expect(subject.expires).to be_kind_of(HTTPDate)
     end
 
     it "should parse Pragma" do
-      expect(subject.pragma).to_not be_nil
+      expect(subject.pragma).to be_kind_of(Headers::Pragma)
     end
 
     it "should parse Set-Cookie" do
-      expect(subject.set_cookie).to_not be_nil
+      expect(subject.set_cookie).to be_kind_of(Headers::SetCookie)
     end
 
     it "should parse Strict-Transport-Security" do
-      expect(subject.strict_transport_security).to_not be_nil
+      expect(subject.strict_transport_security).to be_kind_of(Headers::StrictTransportSecurity)
     end
 
     it "should parse X-Content-Type-Options" do
-      expect(subject.x_content_type_options).to_not be_nil
+      expect(subject.x_content_type_options).to be_kind_of(Headers::XContentTypeOptions)
     end
 
     it "should parse X-Frame-Options" do
-      expect(subject.x_frame_options).to_not be_nil
+      expect(subject.x_frame_options).to be_kind_of(Headers::XFrameOptions)
     end
 
     it "should parse X-Permitted-Cross-Domain-Policies" do
-      expect(subject.x_permitted_cross_domain_policies).to_not be_nil
+      expect(subject.x_permitted_cross_domain_policies).to be_kind_of(Headers::XPermittedCrossDomainPolicies)
     end
 
     it "should parse X-XSS-Protection" do
-      expect(subject.x_xss_protection).to_not be_nil
+      expect(subject.x_xss_protection).to be_kind_of(Headers::XXSSProtection)
     end
 
     context "when parsing a malformed headers" do
