@@ -7,7 +7,7 @@ module HTTP
 
         def initialize(directives={})
           @deny        = directives[:deny]
-          @same_origin = directives[:same_origin]
+          @same_origin = directives[:sameorigin]
           @allow_from  = directives[:allow_from]
         end
 
