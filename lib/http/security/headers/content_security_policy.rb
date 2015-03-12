@@ -45,24 +45,24 @@ module HTTP
           directives = []
 
           directives << "default-src #{@default_src}" if @default_src
-          directives << "; script-src #{@script_src}" if @script_src
-          directives << "; object-src #{@object_src}" if @object_src
-          directives << "; style-src #{@style_src}"   if @style_src
-          directives << "; image-src #{@image_src}"   if @image_src
-          directives << "; media-src #{@media_src}"   if @media_src
-          directives << "; frame-src #{@frame_src}"   if @frame_src
-          directives << "; font-src #{@font_src}"     if @font_src
-          directives << "; connect-src #{@connect_src}" if @connect_src
+          directives << "script-src #{@script_src}"   if @script_src
+          directives << "object-src #{@object_src}"   if @object_src
+          directives << "style-src #{@style_src}"     if @style_src
+          directives << "image-src #{@image_src}"     if @image_src
+          directives << "media-src #{@media_src}"     if @media_src
+          directives << "frame-src #{@frame_src}"     if @frame_src
+          directives << "font-src #{@font_src}"       if @font_src
+          directives << "connect-src #{@connect_src}" if @connect_src
 
           if @sandbox
-            directives << "; sandbox #{@sandbox}"
+            directives << "sandbox #{@sandbox}"
           end
 
           unless @report_uri.empty?
-            directives << "; report-uri #{@report_uri.join(' ')}"
+            directives << "report-uri #{@report_uri.join(' ')}"
           end
 
-          return directives.join(', ')
+          return directives.join('; ')
         end
 
       end
