@@ -17,13 +17,15 @@ module HTTP
           (
             deny        |
             same_origin |
-            allow_from
+            allow_from  |
+            allow_all
           ).as(:directives)
         end
         root :x_frame_options
 
         directive_rule :deny, 'deny'
         directive_rule :same_origin, 'sameorigin'
+        directive_rule :allow_all, 'allowall'
 
         rule(:allow_from) do
           stri("allow-from").as(:name) >> wsp.repeat(1) >>

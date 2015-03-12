@@ -44,6 +44,20 @@ describe HTTP::Security::Headers::XFrameOptions do
     end
   end
 
+  describe "allow_all?" do
+    context "when allowall: was true" do
+      subject { described_class.new(allowall: true) }
+
+      it { expect(subject.allow_all?).to be true }
+    end
+
+    context "when sameorigin: was false" do
+      subject { described_class.new(allowall: false) }
+
+      it { expect(subject.allow_all?).to be false }
+    end
+  end
+
   describe "#to_s" do
     context "when deny: was true" do
       subject { described_class.new(deny: true) }
@@ -61,6 +75,12 @@ describe HTTP::Security::Headers::XFrameOptions do
       subject { described_class.new(allow_from: allow_from) }
 
       it { expect(subject.to_s).to be == "allow-from #{allow_from}" }
+    end
+
+    context "when allowall: was specified" do
+      subject { described_class.new(allowall: allow_from) }
+
+      it { expect(subject.to_s).to be == 'allowall' }
     end
   end
 end
