@@ -3,6 +3,8 @@ module HTTP
     module Headers
       class SetCookie
 
+        include Enumerable
+
         # @return [Array<Cookie>]
         attr_reader :cookies
 
@@ -48,7 +50,7 @@ module HTTP
             str << "; Domain=#{@domain}"            if @domain
             str << "; Expires=#{@expires.httpdate}" if @domain
             str << "; Secure"                       if @secure
-            str << "; HTTPOnly"                     if @http_only
+            str << "; HttpOnly"                     if @http_only
 
             return str
           end
@@ -57,6 +59,10 @@ module HTTP
 
         def initialize(cookies=[])
           @cookies = cookies.map { |cookie| Cookie.new(cookie) }
+        end
+
+        def each(&block)
+          @cookies.each(&block)
         end
 
         def to_s
