@@ -8,13 +8,11 @@ module HTTP
         # Syntax:
         # X-Content-Type-Options: nosniff
         rule(:x_content_type_options) do
-          nosniff.as(:directives)
+          no_sniff.as(:directives)
         end
         root :x_content_type_options
 
-        rule(:nosniff) do
-          stri('nosniff').as(:name)
-        end
+        directive_rule :no_sniff, 'nosniff'
       end
     end
   end
