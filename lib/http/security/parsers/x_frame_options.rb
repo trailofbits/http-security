@@ -15,16 +15,12 @@ module HTTP
         # Only one can be present
         rule(:x_frame_options) do
           (
-            x_frame_option >> (comma >> x_frame_option).repeat(0)
+            deny        |
+            same_origin |
+            allow_from
           ).as(:directives)
         end
         root :x_frame_options
-
-        rule(:x_frame_option) do
-          deny |
-          same_origin |
-          allow_from
-        end
 
         directive_rule :deny, 'deny'
         directive_rule :same_origin, 'sameorigin'
