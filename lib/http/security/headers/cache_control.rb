@@ -24,7 +24,7 @@ module HTTP
 
 
           directives << "private"             if @private
-          directives << "max_age=#{@max_age}" if @max_age
+          directives << "max-age=#{@max_age}" if @max_age
           directives << "no-cache"            if @no_cache
 
           return directives.join(', ')
