@@ -25,10 +25,10 @@ module HTTP
         end
 
         def to_s
-          if    @deny        then 'deny'
-          elsif @same_origin then 'sameorigin'
-          elsif @allow_from  then "allow-from #{@allow_from}"
-          elsif @allow_all   then 'allowall'
+          if    @deny        then 'DENY'
+          elsif @same_origin then 'SAMEORIGIN'
+          elsif @allow_from  then "ALLOW-FROM #{@allow_from}"
+          elsif @allow_all   then 'ALLOWALL'
           else                    ''
           end
         end

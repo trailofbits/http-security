@@ -62,25 +62,25 @@ describe HTTP::Security::Headers::XFrameOptions do
     context "when deny: was true" do
       subject { described_class.new(deny: true) }
 
-      it { expect(subject.to_s).to be == 'deny' }
+      it { expect(subject.to_s).to be == 'DENY' }
     end
 
     context "when same_origin: was true" do
       subject { described_class.new(sameorigin: true) }
 
-      it { expect(subject.to_s).to be == 'sameorigin' }
+      it { expect(subject.to_s).to be == 'SAMEORIGIN' }
     end
 
     context "when allow_from: was specified" do
       subject { described_class.new(allow_from: allow_from) }
 
-      it { expect(subject.to_s).to be == "allow-from #{allow_from}" }
+      it { expect(subject.to_s).to be == "ALLOW-FROM #{allow_from}" }
     end
 
     context "when allowall: was specified" do
       subject { described_class.new(allowall: allow_from) }
 
-      it { expect(subject.to_s).to be == 'allowall' }
+      it { expect(subject.to_s).to be == 'ALLOWALL' }
     end
   end
 end
