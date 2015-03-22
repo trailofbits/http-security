@@ -158,10 +158,10 @@ module HTTP
       def self.parse(response)
         fields = {}
 
-        FIELDS.each do |name,field|
-          if (value = response[name])
+        FIELDS.each do |header,field|
+          if (value = response[header])
             fields[field] = begin
-                              parse_header(name,value)
+                              parse_header(header,value)
                             rescue Parslet::ParseFailed => error
                               MalformedHeader.new(value,error.cause)
                             end
