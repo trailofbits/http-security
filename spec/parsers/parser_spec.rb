@@ -2,7 +2,6 @@ require "spec_helper"
 require 'http/security/parsers/parser'
 
 describe Parsers::Parser do
-
   describe "#http_date" do
     subject { super().http_date }
 
@@ -25,6 +24,28 @@ describe Parsers::Parser do
     end
   end
 
+  describe "#header_extension" do
+    subject { super().header_extension }
+
+    let(:name) { 'foo' }
+
+    context "when parsing a token" do
+      it "should tag the token name" do
+        expect(subject.parse(name)).to eq(name: name)
+      end
+    end
+
+    context "when parsing a token and a value" do
+      let(:value) { 'bar' }
+
+      it "should tag the token and value" do
+        expect(subject.parse("#{name}=#{value}")).to eq(
+          name: name,
+          value: value
+        )
+      end
+    end
+  end
 
   describe "#uri" do
     let(:transform) { Parsers::Parser::Transform.new }

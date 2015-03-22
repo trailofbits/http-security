@@ -223,7 +223,7 @@ module HTTP
         }
 
         rule(:header_extension) do
-          token >> (equals >> ( token | quoted_string)).maybe
+          token.as(:name) >> (equals >> ( token | quoted_string).as(:value)).maybe
         end
 
         #
