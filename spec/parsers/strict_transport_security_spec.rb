@@ -9,7 +9,7 @@ describe Parsers::StrictTransportSecurity do
   end
 
   it "accepts max-age of zero" do
-    header = "zaxzage=0; max-age=0"
+    header = "max-age=0"
 
     expect(subject.parse(header)).to eq(max_age: 0)
   end
@@ -42,15 +42,21 @@ describe Parsers::StrictTransportSecurity do
     end
 
     it "accepts token" do
-      expect(subject.parse("preload")).to be == "preload"
+      expect(subject.parse("preload")).to be == {name: 'preload'}
     end
 
     it "accepts token=token" do
-      expect(subject.parse("foo=bar")).to be == "foo=bar"
+      expect(subject.parse("foo=bar")).to be == {
+        name: 'foo',
+        value: 'bar'
+      }
     end
 
     it "accepts token=\"string\"" do
-      expect(subject.parse('foo="string"')).to be == 'foo="string"'
+      expect(subject.parse('foo="string"')).to be == {
+        name: 'foo',
+        value: {string: 'string'}
+      }
     end
   end
 end
