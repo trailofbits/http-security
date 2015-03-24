@@ -3,29 +3,23 @@ module HTTP
     module Headers
       class PublicKeyPins
 
-        # Expiration in seconds.
-        #
+        # @return [Hash{Symbol,String => Array<String>}]
+        attr_reader :pin
+
         # @return [Integer]
         attr_reader :max_age
 
-        # The report URI.
-        #
         # @return [URI::HTTP]
         attr_reader :report_uri
 
-        #
-        # Initializes the `Public-Key-Pins` header.
-        #
-        # @param [Hash{Symbol => Object}] options
-        # 
         def initialize(options={})
           @pin = {}
 
           options.each do |key,value|
-            key = key.to_s
-
-            if key.start_with?('pin_')
-              @pin[key[4..-1].to_sym] = value
+            if (key.kind_of?(Symbol) && key =~ /^pin_/)
+              @pin[key[4..-1].to_sym] = Array(value)
+            elsif (key.kind_of?(String) && key.start_with?('pin-'))
+              @pin[key[4..-1]] = Array(value)
             end
           end
 
@@ -41,6 +35,23 @@ module HTTP
 
         def strict?
           @strict
+        end
+
+        def to_s
+          directives = []
+
+          @pin.each do |algorithm,fingerprints|
+            Array(fingerprints).each do |fingerprint|
+              directives << "pin-#{algorithm}=#{fingerprint.dump}"
+            end
+          end
+
+          directives << "max-age=#{@max_age}"           if @max_age
+          directives << "includeSubdomains"             if @include_sub_domains
+          directives << "report-uri=\"#{@report_uri}\"" if @report_uri
+          directives << "strict"                        if @strict
+
+          return directives.join('; ')
         end
 
       end
