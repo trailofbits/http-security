@@ -92,4 +92,150 @@ describe Parsers::Parser do
     end
   end
 
+  describe described_class::Transform do
+    describe "boolean" do
+      it "should map '0' to false" do
+        expect(subject.apply({boolean: '0'})).to be false
+      end
+
+      it "should map 'no' to false" do
+        expect(subject.apply({boolean: 'no'})).to be false
+      end
+
+      it "should map 'false' to false" do
+        expect(subject.apply({boolean: 'false'})).to be false
+      end
+
+      it "should map '1' to true" do
+        expect(subject.apply({boolean: '1'})).to be true
+      end
+
+      it "should map 'yes' to true" do
+        expect(subject.apply({boolean: 'yes'})).to be true
+      end
+
+      it "should map 'true' to false" do
+        expect(subject.apply({boolean: 'true'})).to be true
+      end
+    end
+
+    describe "numeric" do
+      it "should coerce Strings to Integer values" do
+        expect(subject.apply({numeric: '42'})).to be 42
+      end
+    end
+
+    describe "date" do
+      let(:string) { 'Tue, 24 Mar 2015 00:00:00 GMT' }
+      let(:date)   { Date.parse(string) }
+
+      it "should return an HTTPDate" do
+        expect(subject.apply({date: string})).to be_kind_of(HTTPDate)
+      end
+
+      it "should coerce Strings to Date values" do
+        expect(subject.apply({date: string})).to be == date
+      end
+    end
+
+    describe "uri" do
+      let(:string) { 'https://www.example.com/?foo=bar' }
+      let(:uri)    { URI(string) }
+
+      it "should parse Strings as URIs" do
+        expect(subject.apply({uri: string})).to be == uri
+      end
+    end
+
+    describe "list" do
+      context "when given a single element" do
+        let(:element) { 'foo' }
+
+        it "should return an Array of the element" do
+          expect(subject.apply({list: element})).to be == [element]
+        end
+      end
+
+      context "when given multiple elements" do
+        let(:elements) { %w[foo bar baz] }
+
+        it "should return the elements" do
+          expect(subject.apply({list: elements})).to be == elements
+        end
+      end
+    end
+
+    describe "name" do
+      let(:string) { 'foo' }
+      let(:name)   { :foo }
+
+      it "should return a Hash with the name and true" do
+        expect(subject.apply({name: string})).to be == {name => true}
+      end
+
+      context "when given mixed-case String" do
+        let(:string) { 'fooBar' }
+        let(:name)   { :foobar  }
+
+        it "should downcase the String" do
+          expect(subject.apply({name: string})).to be == {name => true}
+        end
+      end
+
+      context "when given a hyphenated String" do
+        let(:string) { 'foo-bar' }
+        let(:name)   { :foo_bar  }
+
+        it "should replace the hyphens with underscores" do
+          expect(subject.apply({name: string})).to be == {name => true}
+        end
+      end
+    end
+
+    describe "name with simple value" do
+      let(:string) { 'foo' }
+      let(:name)   { :foo  }
+      let(:value)  { 'bar' }
+
+      it "should return a Hash of the name and value" do
+        expect(subject.apply({name: string, value: value})).to be == {
+          name => value
+        }
+      end
+    end
+
+    describe "name with values" do
+      let(:string) { 'foo' }
+      let(:name)   { :foo  }
+      let(:value)  { {'x' => 1} }
+
+      it "should return a Hash of the name and value" do
+        expect(subject.apply({name: string, values: value})).to be == {
+          name => value
+        }
+      end
+    end
+
+    describe "directives" do
+      context "when given a single Hash" do
+        let(:hash) { {foo: 'bar'} }
+
+        it "should return the Hash" do
+          expect(subject.apply({directives: hash})).to be == hash
+        end
+      end
+
+      context "when given multiple Hashes" do
+        let(:hash1)  { {foo: 'bar'} }
+        let(:hash2)  { {baz: 'quix'} }
+        let(:hashes) { [hash1, hash2] }
+        let(:hash)   { hash1.merge(hash2) }
+
+        it "should return a merged Hash" do
+          expect(subject.apply({directives: hashes})).to be == hash
+        end
+      end
+    end
+  end
+
 end
