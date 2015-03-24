@@ -256,14 +256,14 @@ module HTTP
         end
 
         rule(:quoted_string) do
-          d_quote >> (qdtext | quoted_pair).repeat(0) >> d_quote
+          d_quote >> (qdtext | quoted_pair).repeat(0).as(:string) >> d_quote
         end
         rule(:qdtext) do
           match['^\x00-\x1f\x22\x7f'] | lws
         end
 
         rule(:quoted_pair) do
-          str('\\') >> ascii
+          str('\\') >> ascii.as(:escaped_char)
         end
 
         rule(:field_name) do
@@ -327,6 +327,23 @@ module HTTP
             end
           end
           rule(numeric: simple(:numeric)) { Integer(numeric) }
+
+          ESCAPED_CHARS = {
+            '0' => "\0",
+            'a' => "\a",
+            'b' => "\b",
+            't' => "\t",
+            'n' => "\n",
+            'v' => "\v",
+            'f' => "\f",
+            'r' => "\r"
+          }
+          ESCAPED_CHARS.default_proc = proc { |hash,key| key }
+
+          rule(escaped_char: simple(:char)) { ESCAPED_CHARS[char] }
+          rule(string: simple(:text))       { text }
+          rule(string: sequence(:strings))  { strings.join }
+
           rule(date: simple(:date))       { HTTPDate.parse(date.to_s) }
           rule(uri: simple(:uri))         { URI.parse(uri) }
 

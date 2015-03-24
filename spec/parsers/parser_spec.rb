@@ -125,6 +125,42 @@ describe Parsers::Parser do
       end
     end
 
+    describe "escaped_char" do
+      context "when the escaped char is a control character" do
+        let(:char) { 'n' }
+
+        it "should map it to the control character" do
+          expect(subject.apply({escaped_char: 'n'})).to be == "\n"
+        end
+      end
+
+      context "when the escaped char is a printable character" do
+        let(:char) { 'x' }
+
+        it "should return the printable character" do
+          expect(subject.apply({escaped_char: char})).to be == char
+        end
+      end
+    end
+
+    describe "string" do
+      context "when given one String" do
+        let(:string) { "foo bar" }
+
+        it "should return the String" do
+          expect(subject.apply({string: string})).to be == string
+        end
+      end
+
+      context "when given multiple Strings" do
+        let(:strings) { ['foo', "\n", 'bar'] }
+
+        it "should join the Strings" do
+          expect(subject.apply({string: strings})).to be == strings.join
+        end
+      end
+    end
+
     describe "date" do
       let(:string) { 'Tue, 24 Mar 2015 00:00:00 GMT' }
       let(:date)   { Date.parse(string) }
