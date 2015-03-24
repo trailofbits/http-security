@@ -263,7 +263,7 @@ module HTTP
         end
 
         rule(:quoted_pair) do
-          str('"') >> ascii
+          str('\\') >> ascii
         end
 
         rule(:field_name) do
