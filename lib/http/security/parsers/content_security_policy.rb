@@ -32,7 +32,7 @@ module HTTP
         root :csp_pattern
 
         rule(:csp_entry) do
-          (csp_directive.as(:name) >> wsp >> source_list.as(:value)) |
+          (csp_directive.as(:key) >> wsp >> source_list.as(:value)) |
           report_uri                                                 |
           sandbox
         end
@@ -112,7 +112,7 @@ module HTTP
         # directive-value   = uri-reference *( 1*WSP uri-reference )
         # uri-reference     = <URI-reference from RFC 3986>
         rule(:report_uri) do
-          stri("report-uri").as(:name) >> wsp.repeat(1) >> (uri >> (wsp.repeat(1) >> uri).repeat(0)).as(:values)
+          stri("report-uri").as(:key) >> wsp.repeat(1) >> (uri >> (wsp.repeat(1) >> uri).repeat(0)).as(:values)
         end
 
         # sandbox (Optional)
@@ -120,7 +120,7 @@ module HTTP
         # directive-value   = token *( 1*WSP token )
         # token             = <token from RFC 2616>
         rule(:sandbox) do
-          stri("sandbox").as(:name) >> wsp.repeat(1) >> (token >> (wsp.repeat(1) >> token).repeat(0)).as(:value)
+          stri("sandbox").as(:key) >> wsp.repeat(1) >> (token >> (wsp.repeat(1) >> token).repeat(0)).as(:value)
         end
       end
     end

@@ -37,17 +37,17 @@ describe Parsers::StrictTransportSecurity do
 
     it "accepts includedSubdomains" do
       expect(subject.parse('includeSubDomains')).to be == {
-        name: "includeSubDomains"
+        key: "includeSubDomains"
       }
     end
 
-    it "accepts token" do
+    it "accepts an unsupported token" do
       expect(subject.parse("preload")).to be == {name: 'preload'}
     end
 
-    it "accepts token=token" do
+    it "accepts an unsupported token=token" do
       expect(subject.parse("foo=bar")).to be == {
-        name: 'foo',
+        name:  'foo',
         value: 'bar'
       }
     end

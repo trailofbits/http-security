@@ -17,19 +17,19 @@ module HTTP
           string ||= name.to_s.tr('_','-')
 
           rule(name) do
-            stri(string).as(:name)
+            stri(string).as(:key)
           end
         end
 
         def self.field_directive_rule(name,directive)
           rule(name) do
-            stri(directive).as(:name) >> (equals >> field_name.as(:value)).maybe
+            stri(directive).as(:key) >> (equals >> field_name.as(:value)).maybe
           end
         end
 
         def self.numeric_directive_rule(name,directive)
           rule(name) do
-            stri(directive).as(:name) >> equals >> (
+            stri(directive).as(:key) >> equals >> (
               digits.as(:numeric) |
               (s_quote >> digits.as(:numeric) >> s_quote) |
               (d_quote >> digits.as(:numeric) >> d_quote)
@@ -223,7 +223,9 @@ module HTTP
         }
 
         rule(:header_extension) do
-          token.as(:name) >> (equals >> ( token | quoted_string).as(:value)).maybe
+          token.as(:name) >> (
+            equals >> ( token | quoted_string).as(:value)
+          ).maybe
         end
 
         #
@@ -355,15 +357,22 @@ module HTTP
             end
           end
 
-          rule(name: simple(:name)) do
-            {name.to_s.downcase.tr('-','_').to_sym => true}
-          end
+          rule(name: simple(:name)) { {name.to_s => true} }
           rule(name: simple(:name), value: simple(:value)) do
-            {name.to_s.downcase.tr('-','_').to_sym => value}
+            {name.to_s => value}
+          end
+          rule(name: simple(:name), values: subtree(:tree)) do
+            {name.to_s => tree}
           end
 
-          rule(name: simple(:name), values: subtree(:values)) do
-            {name.to_s.downcase.tr('-','_').to_sym => values}
+          rule(key: simple(:name)) do
+            {name.to_s.downcase.tr('-','_').to_sym => true}
+          end
+          rule(key: simple(:name), value: simple(:value)) do
+            {name.to_s.downcase.tr('-','_').to_sym => value}
+          end
+          rule(key: simple(:name), values: subtree(:tree)) do
+            {name.to_s.downcase.tr('-','_').to_sym => tree}
           end
 
           rule(directives: subtree(:hashes)) do

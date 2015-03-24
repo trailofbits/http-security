@@ -28,7 +28,7 @@ module HTTP
         directive_rule :allow_all, 'allowall'
 
         rule(:allow_from) do
-          stri("allow-from").as(:name) >> wsp.repeat(1) >>
+          stri("allow-from").as(:key) >> wsp.repeat(1) >>
           serialized_origin.as(:value)
         end
 

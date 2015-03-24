@@ -17,7 +17,7 @@ module HTTP
         root :pragma
 
         rule(:no_cache) do
-          stri('no-cache').as(:name)
+          stri('no-cache').as(:key)
         end
       end
     end

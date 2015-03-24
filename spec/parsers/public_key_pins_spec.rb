@@ -26,7 +26,7 @@ describe Parsers::PublicKeyPins do
     it "parses the unsupported pin- directives" do
       expect(subject.parse(header)).to be == {
         pin_sha256:  pin_sha256,
-        pin_sha9000: pin_sha9000
+        'pin-sha9000' => pin_sha9000
       }
     end
   end

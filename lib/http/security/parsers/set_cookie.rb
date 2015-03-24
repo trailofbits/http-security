@@ -17,7 +17,7 @@ module HTTP
         end
 
         rule(:cookie_pair) do
-          cookie_name.as(:name) >> str('=') >> cookie_value.as(:value)
+          cookie_name.as(:key) >> str('=') >> cookie_value.as(:value)
         end
 
         rule(:cookie_name) { token }

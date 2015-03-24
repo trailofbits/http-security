@@ -42,12 +42,12 @@ module HTTP
 
         #"private" [ "=" <"> 1#field-name <"> ];
         rule(:cc_public) do
-          stri("public").as(:name) >> (equals >> field_name.as(:value)).maybe
+          stri("public").as(:key) >> (equals >> field_name.as(:value)).maybe
         end
 
         #"private" [ "=" <"> 1#field-name <"> ];
         rule(:cc_private) do
-          stri("private").as(:name) >> (equals >> field_name.as(:value)).maybe
+          stri("private").as(:key) >> (equals >> field_name.as(:value)).maybe
         end
 
         field_directive_rule :no_cache, 'no-cache'

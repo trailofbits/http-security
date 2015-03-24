@@ -22,16 +22,19 @@ module HTTP
         end
 
         rule(:pin) do
-          (stri('pin-') >> (hash_algorithm | token)).as(:name) >> equals >>
-          quoted_string.as(:value)
+          (
+            (stri('pin-') >> hash_algorithm).as(:key) |
+            (stri('pin-') >> unsupported_algorithm).as(:name)
+          ) >> equals >> quoted_string.as(:value)
         end
         rule(:hash_algorithm) { stri('sha256') }
+        rule(:unsupported_algorithm) { token }
 
         directive_rule :include_subdomains, 'includeSubDomains'
         directive_rule :strict
 
         rule(:report_uri) do
-          stri("report-uri").as(:name) >> equals >>
+          stri("report-uri").as(:key) >> equals >>
           d_quote >> uri.as(:value) >> d_quote
         end
       end

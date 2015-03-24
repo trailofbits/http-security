@@ -201,53 +201,83 @@ describe Parsers::Parser do
       end
     end
 
-    describe "name" do
-      let(:string) { 'foo' }
-      let(:name)   { :foo }
+    describe "key" do
+      let(:name)  { 'foo' }
+      let(:key)   { :foo }
 
       it "should return a Hash with the name and true" do
-        expect(subject.apply({name: string})).to be == {name => true}
+        expect(subject.apply({key: name})).to be == {key => true}
       end
 
       context "when given mixed-case String" do
-        let(:string) { 'fooBar' }
-        let(:name)   { :foobar  }
+        let(:name)  { 'fooBar' }
+        let(:key)   { :foobar  }
 
         it "should downcase the String" do
-          expect(subject.apply({name: string})).to be == {name => true}
+          expect(subject.apply({key: name})).to be == {key => true}
         end
       end
 
       context "when given a hyphenated String" do
-        let(:string) { 'foo-bar' }
-        let(:name)   { :foo_bar  }
+        let(:name)  { 'foo-bar' }
+        let(:key)   { :foo_bar  }
 
         it "should replace the hyphens with underscores" do
-          expect(subject.apply({name: string})).to be == {name => true}
+          expect(subject.apply({key: name})).to be == {key => true}
         end
       end
     end
 
-    describe "name with simple value" do
-      let(:string) { 'foo' }
-      let(:name)   { :foo  }
-      let(:value)  { 'bar' }
+    describe "key with simple value" do
+      let(:name)  { 'foo' }
+      let(:key)   { :foo  }
+      let(:value) { 'bar' }
 
       it "should return a Hash of the name and value" do
-        expect(subject.apply({name: string, value: value})).to be == {
+        expect(subject.apply({key: name, value: value})).to be == {
+          key => value
+        }
+      end
+    end
+
+    describe "key with values" do
+      let(:name)  { 'foo' }
+      let(:key)   { :foo  }
+      let(:value) { {'x' => 1} }
+
+      it "should return a Hash of the name and value" do
+        expect(subject.apply({key: name, values: value})).to be == {
+          key => value
+        }
+      end
+    end
+
+    describe "name" do
+      let(:name)  { 'foo' }
+
+      it "should return a Hash with the name and true" do
+        expect(subject.apply({name: name})).to be == {name => true}
+      end
+    end
+
+    describe "name with simple value" do
+      let(:name)  { 'foo' }
+      let(:value) { 'bar' }
+
+      it "should return a Hash of the name and value" do
+        expect(subject.apply({name: name, value: value})).to be == {
           name => value
         }
       end
     end
 
-    describe "name with values" do
-      let(:string) { 'foo' }
-      let(:name)   { :foo  }
-      let(:value)  { {'x' => 1} }
+    describe "name with a tree of values" do
+      let(:name)  { 'foo' }
+      let(:tree)  { {'x' => 1} }
 
-      it "should return a Hash of the name and value" do
-        expect(subject.apply({name: string, values: value})).to be == {
-          name => value
+      it "should return a Hash of the name and values" do
+        expect(subject.apply({name: name, values: tree})).to be == {
+          name => tree
         }
       end
     end
