@@ -14,7 +14,6 @@ module HTTP
 
         rule(:public_key_pin_directive) do
           pin                |
-          unknown_pin        |
           max_age            |
           include_subdomains |
           report_uri         |
@@ -23,11 +22,10 @@ module HTTP
         end
 
         rule(:pin) do
-          (stri('pin-') >> hash_algorithm).as(:name) >> equals >>
+          (stri('pin-') >> (hash_algorithm | token)).as(:name) >> equals >>
           quoted_string.as(:value)
         end
         rule(:hash_algorithm) { stri('sha256') }
-        rule(:unknown_pin) { stri('pin-') >> token >> equals >> quoted_string }
 
         directive_rule :include_subdomains, 'includeSubDomains'
         directive_rule :strict

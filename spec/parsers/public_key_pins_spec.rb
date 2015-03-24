@@ -19,6 +19,18 @@ describe Parsers::PublicKeyPins do
     end
   end
 
+  context "when given pin- directives with unsupported hash algorithms" do
+    let(:pin_sha9000) { "foo" }
+    let(:header)      { "#{super()}; pin-sha9000=\"#{pin_sha9000}\"" }
+
+    it "parses the unsupported pin- directives" do
+      expect(subject.parse(header)).to be == {
+        pin_sha256:  pin_sha256,
+        pin_sha9000: pin_sha9000
+      }
+    end
+  end
+
   context "when the max-age= directive is present" do
     let(:max_age) { 31536000 }
     let(:header)  { "pin-sha256=\"#{pin_sha256}\"; max-age=#{max_age}" }
