@@ -234,8 +234,18 @@ describe Parsers::Parser do
         it "should return a merged Hash" do
           expect(subject.apply({directives: hashes})).to be == hash
         end
+
+        context "when the Hashes share key names" do
+          let(:hash1)  { {foo: '1', bar: '2'} }
+          let(:hash2)  { {bar: '3', baz: '4'} }
+          let(:hashes) { [hash1, hash2]      }
+          let(:hash)   { {foo: '1', bar: ['2', '3'], baz: '4'} }
+
+          it "should combine the values into an Array" do
+            expect(subject.apply({directives: hashes})).to be == hash
+          end
+        end
       end
     end
   end
-
 end

@@ -351,8 +351,18 @@ module HTTP
 
           rule(directives: subtree(:hashes)) do
             case hashes
-            when Array then hashes.reduce(&:merge!)
-            else            hashes
+            when Array
+              hashes.reduce do |hash,sub_hash|
+                hash.merge!(sub_hash) do |key,old_value,new_value|
+                  case old_value
+                  when Array then old_value << new_value
+                  when nil   then new_value
+                  else            [old_value, new_value]
+                  end
+                end
+              end
+            else
+              hashes
             end
           end
 
