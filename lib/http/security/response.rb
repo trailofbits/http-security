@@ -30,6 +30,9 @@ module HTTP
       # The parsed `Public-Key-Pins` header.
       attr_reader :public_key_pins
 
+      # The parsed `Public-Key-Pins-Report-Only` header.
+      attr_reader :public_key_pins_report_only
+
       # The parsed `X-Content-Type-Options` header.
       attr_reader :x_content_type_options
       alias content_type_options x_content_type_options
@@ -74,6 +77,10 @@ module HTTP
       #   The parsed `Set-Cookie` header.
       #
       # @option options [Hash] :public_key_pins
+      #   The parsed `Public-Key-Pins` header.
+      #
+      # @option options [Hash] :public_key_pins_report_only
+      #   The parsed `Public-Key-Pins-Report-Only` header.
       #
       # @option options [Hash] :x_content_type_options
       #   The parsed `X-Content-Type-Options` header.
@@ -95,9 +102,10 @@ module HTTP
         @content_security_policy_report_only = headers[:content_security_policy_report_only]
         @expires = headers[:expires]
         @pragma = headers[:pragma]
+        @public_key_pins = headers[:public_key_pins]
+        @public_key_pins_report_only = headers[:public_key_pins_report_only]
         @strict_transport_security = headers[:strict_transport_security]
         @set_cookie = headers[:set_cookie]
-        @public_key_pins = headers[:public_key_pins]
         @x_content_type_options = headers[:x_content_type_options]
         @x_frame_options = headers[:x_frame_options]
         @x_permitted_cross_domain_policies = headers[:x_permitted_cross_domain_policies]
@@ -112,6 +120,7 @@ module HTTP
         'Expires'                             => Parsers::Expires,
         'Pragma'                              => Parsers::Pragma,
         'Public-Key-Pins'                     => Parsers::PublicKeyPins,
+        'Public-Key-Pins-Report-Only'         => Parsers::PublicKeyPinsReportOnly,
         'Strict-Transport-Security'           => Parsers::StrictTransportSecurity,
         'Set-Cookie'                          => Parsers::SetCookie,
         'X-Content-Type-Options'              => Parsers::XContentTypeOptions,
@@ -128,6 +137,7 @@ module HTTP
         'Expires'                             => nil,
         'Pragma'                              => Headers::Pragma,
         'Public-Key-Pins'                     => Headers::PublicKeyPins,
+        'Public-Key-Pins-Report-Only'         => Headers::PublicKeyPinsReportOnly,
         'Strict-Transport-Security'           => Headers::StrictTransportSecurity,
         'Set-Cookie'                          => Headers::SetCookie,
         'X-Content-Type-Options'              => Headers::XContentTypeOptions,
@@ -144,6 +154,7 @@ module HTTP
         'Expires'                             => :expires,
         'Pragma'                              => :pragma,
         'Public-Key-Pins'                     => :public_key_pins,
+        'Public-Key-Pins-Report-Only'         => :public_key_pins_report_only,
         'Strict-Transport-Security'           => :strict_transport_security,
         'Set-Cookie'                          => :set_cookie,
         'X-Content-Type-Options'              => :x_content_type_options,
