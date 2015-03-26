@@ -30,11 +30,11 @@ module HTTP
         end
 
         def include_sub_domains?
-          @include_sub_domains
+          !!@include_sub_domains
         end
 
         def strict?
-          @strict
+          !!@strict
         end
 
         def to_s

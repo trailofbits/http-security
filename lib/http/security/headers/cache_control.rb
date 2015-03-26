@@ -12,11 +12,11 @@ module HTTP
         end
 
         def private?
-          @private
+          !!@private
         end
 
         def no_cache?
-          @no_cache
+          !!@no_cache
         end
 
         def to_s

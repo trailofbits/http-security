@@ -13,15 +13,15 @@ module HTTP
         end
 
         def deny?
-          @deny
+          !!@deny
         end
 
         def same_origin?
-          @same_origin
+          !!@same_origin
         end
 
         def allow_all?
-          @allow_all
+          !!@allow_all
         end
 
         def to_s

@@ -12,23 +12,23 @@ module HTTP
         end
 
         def none?
-          @none
+          !!@none
         end
 
         def master_only?
-          @master_only
+          !!@master_only
         end
 
         def by_content_type?
-          @by_content_type
+          !!@by_content_type
         end
 
         def by_ftp_filename?
-          @by_ftp_filename
+          !!@by_ftp_filename
         end
 
         def all?
-          @all
+          !!@all
         end
 
         def to_s

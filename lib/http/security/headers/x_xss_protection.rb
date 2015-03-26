@@ -14,7 +14,7 @@ module HTTP
         end
 
         def enabled?
-          @enabled
+          !!@enabled
         end
 
         def to_s

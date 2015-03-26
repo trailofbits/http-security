@@ -8,7 +8,7 @@ module HTTP
         end
 
         def no_cache?
-          @no_cache
+          !!@no_cache
         end
 
         def to_s

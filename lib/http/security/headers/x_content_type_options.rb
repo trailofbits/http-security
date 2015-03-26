@@ -8,7 +8,7 @@ module HTTP
         end
 
         def no_sniff?
-          @no_sniff
+          !!@no_sniff
         end
 
         def to_s

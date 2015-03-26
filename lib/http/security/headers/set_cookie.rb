@@ -36,11 +36,11 @@ module HTTP
           end
 
           def secure?
-            !@secure.nil?
+            !!@secure
           end
 
           def http_only?
-            !@http_only.nil?
+            !!@http_only
           end
 
           def to_s

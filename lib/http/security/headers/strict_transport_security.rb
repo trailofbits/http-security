@@ -11,7 +11,7 @@ module HTTP
         end
 
         def include_sub_domains?
-          @include_sub_domains
+          !!@include_sub_domains
         end
 
         def to_s
