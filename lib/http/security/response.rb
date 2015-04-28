@@ -1,3 +1,4 @@
+require 'http/security/exceptions'
 require 'http/security/parsers'
 require 'http/security/headers'
 require 'http/security/malformed_header'
@@ -229,11 +230,16 @@ module HTTP
       # @return [Hash]
       #   The parsed header data.
       #
-      # @raise [Parslet::ParseFailed]
+      # @raise [InvalidHeader]
       #   The header was malformed.
       #
       def self.parse_header(name,value)
-        value = PARSERS.fetch(name).parse(value)
+        parser = PARSERS.fetch(name)
+        value  = begin
+                   parser.parse(value)
+                 rescue Parslet::ParseFailed => error
+                   raise(InvalidHeader.new(error.message,error.cause))
+                 end
 
         if (header = HEADERS[name])
           header.new(value)

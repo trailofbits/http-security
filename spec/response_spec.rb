@@ -12,26 +12,39 @@ describe Response do
   end
 
   describe ".parse_header" do
-    let(:name)  { 'Set-Cookie' }
-    let(:value) { "_twitter_sess=BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa; Path=/; Domain=.twitter.com; Secure; HTTPOnly, guest_id=v1%3A141644325604142464; Domain=.twitter.com; Path=/; Expires=Sat, 19 Nov 2016 00:27:36 GMT" }
+    context "when parsing a valid header" do
+      let(:name)  { 'Set-Cookie' }
+      let(:value) { "_twitter_sess=BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa; Path=/; Domain=.twitter.com; Secure; HTTPOnly, guest_id=v1%3A141644325604142464; Domain=.twitter.com; Path=/; Expires=Sat, 19 Nov 2016 00:27:36 GMT" }
 
-    subject { super().parse_header(name,value) }
+      subject { super().parse_header(name,value) }
 
-    it "should parse the given header" do
-      expect(subject).to be_kind_of(Headers::SetCookie)
+      it "should parse the given header" do
+        expect(subject).to be_kind_of(Headers::SetCookie)
 
-      expect(subject.cookies[0].name).to be == :_twitter_sess
-      expect(subject.cookies[0].value).to be == "BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa"
-      expect(subject.cookies[0].path).to be == '/'
-      expect(subject.cookies[0].domain).to be == '.twitter.com'
-      expect(subject.cookies[0]).to be_secure
-      expect(subject.cookies[0]).to be_http_only
+        expect(subject.cookies[0].name).to be == :_twitter_sess
+        expect(subject.cookies[0].value).to be == "BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa"
+        expect(subject.cookies[0].path).to be == '/'
+        expect(subject.cookies[0].domain).to be == '.twitter.com'
+        expect(subject.cookies[0]).to be_secure
+        expect(subject.cookies[0]).to be_http_only
 
-      expect(subject.cookies[1].name).to be == :guest_id
-      expect(subject.cookies[1].value).to be == 'v1%3A141644325604142464'
-      expect(subject.cookies[1].domain).to be == '.twitter.com'
-      expect(subject.cookies[1].path).to be == '/'
-      expect(subject.cookies[1].expires).to be == HTTPDate.parse('Sat, 19 Nov 2016 00:27:36 GMT')
+        expect(subject.cookies[1].name).to be == :guest_id
+        expect(subject.cookies[1].value).to be == 'v1%3A141644325604142464'
+        expect(subject.cookies[1].domain).to be == '.twitter.com'
+        expect(subject.cookies[1].path).to be == '/'
+        expect(subject.cookies[1].expires).to be == HTTPDate.parse('Sat, 19 Nov 2016 00:27:36 GMT')
+      end
+    end
+
+    context "when parsing an invalid header" do
+      let(:name)  { 'Set-Cookie' }
+      let(:value) { "foo"        }
+
+      it "should raise an InvalidHeader exception" do
+        expect {
+          subject.parse_header(name,value)
+        }.to raise_error(InvalidHeader)
+      end
     end
   end
 
