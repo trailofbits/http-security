@@ -216,6 +216,20 @@ describe Response do
     end
   end
 
+  describe "#[]" do
+    subject { described_class.parse(response) }
+
+    it "should retrieve a single header value" do
+      expect(subject['Cache-Control']).to be(subject.cache_control)
+    end
+
+    context "when given an unknown header name" do
+      it "should raise a KeyError" do
+        expect { expect(subject['Foo-Bar']) }.to raise_error(KeyError)
+      end
+    end
+  end
+
   describe "#each" do
     subject { described_class.parse(response) }
 

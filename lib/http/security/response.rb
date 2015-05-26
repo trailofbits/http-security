@@ -249,7 +249,22 @@ module HTTP
       end
 
       #
-      # Enumerates over the parsed header values.
+      # Accesses an arbitrary security header.
+      #
+      # @param [String] header
+      #   The canonical header name.
+      #
+      # @return [Object, nil]
+      #   The parsed header value.
+      #   
+      def [](header)
+        field = FIELDS.fetch(header)
+
+        return instance_variable_get("@#{field}")
+      end
+
+      #
+      # Enumerates over the parsed security header values.
       #
       # @yield [name, value]
       #   The given block will be passed each header name and parsed value.
@@ -267,7 +282,7 @@ module HTTP
         return enum_for(__method__) unless block_given?
 
         FIELDS.each do |header,field|
-          if (value = instance_variable_get("@#{field}"))
+          if (value = self[header])
             yield header, value
           end
         end
