@@ -248,6 +248,33 @@ module HTTP
         end
       end
 
+      #
+      # Enumerates over the parsed header values.
+      #
+      # @yield [name, value]
+      #   The given block will be passed each header name and parsed value.
+      #
+      # @yieldparam [String] name
+      #   The canonical header name.
+      #
+      # @yieldparam [Object] value
+      #   A header class from {Headers}.
+      #
+      # @return [Enumerator]
+      #   If no block was given, an enumerator will be returned.
+      #
+      def each
+        return enum_for(__method__) unless block_given?
+
+        FIELDS.each do |header,field|
+          if (value = instance_variable_get("@#{field}"))
+            yield header, value
+          end
+        end
+
+        return self
+      end
+
     end
   end
 end
