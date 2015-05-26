@@ -343,7 +343,7 @@ module HTTP
           ESCAPED_CHARS.default_proc = proc { |hash,key| key }
 
           rule(escaped_char: simple(:char)) { ESCAPED_CHARS[char] }
-          rule(string: simple(:text))       { text }
+          rule(string: simple(:text))       { text.to_s }
           rule(string: sequence(:strings))  { strings.join }
 
           rule(date: simple(:date))       { HTTPDate.parse(date.to_s) }
