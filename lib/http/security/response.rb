@@ -7,6 +7,8 @@ module HTTP
   module Security
     class Response
 
+      include Enumerable
+
       # The parsed `Cache-Control` header.
       attr_reader :cache_control
 
