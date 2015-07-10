@@ -33,31 +33,31 @@ Currently parsed security headers are:
     headers = HTTP::Security::Response.parse(response)
 
     headers.cache_control
-    # => {:no_cache=>true, :no_store=>true, :must_revalidate=>true}
+    # => #<HTTP::Security::Headers::CacheControl:0x00000002f65778 @private=nil, @max_age=nil, @no_cache=true>
 
     headers.content_security_policy
-    # => {:default_src=>"https:"@12, :connect_src=>"https:"@32, :font_src=>"https: data:"@49, :frame_src=>"https: twitter:"@73, :img_src=>"https: data:"@98, :media_src=>"https:"@122, :object_src=>"https:"@141, :script_src=>"'unsafe-inline' 'unsafe-eval' https:"@160, :style_src=>"'unsafe-inline' https:"@208, :report_uri=>#<URI::HTTPS:0x000000038addf8 URL:https://twitter.com/i/csp_report?a=NVQWGYLXFVZXO2LGOQ%3D%3D%3D%3D%3D%3D&ro=false;>}
+    # => #<HTTP::Security::Headers::ContentSecurityPolicy:0x00000002d8e238 @default_src="https:"@12, @script_src="'unsafe-inline' 'unsafe-eval' https:"@172, @object_src="https:"@153, @style_src="'unsafe-inline' https:"@220, @img_src="https: blob: data:"@98, @media_src="https: blob:"@128, @frame_src="https: twitter:"@73, @font_src="https: data:"@49, @connect_src="https:"@32, @report_uri=[#<URI::HTTPS:0x00000002d94250 URL:https://twitter.com/i/csp_report?a=NVQWGYLXFVZXO2LGOQ%3D%3D%3D%3D%3D%3D&ro=false;>], @sandbox=nil>
 
     headers.expires
-    # => #<Date: 1981-03-31 ((2444695j,0s,0n),+0s,2299161j)>
+    # => #<HTTP::Security::HTTPDate: Tue, 31 Mar 1981 00:00:00 GMT ((2444695j,0s,0n),+0s,2299161j)>
 
     headers.pragma
-    # => {:no_cache=>true}
+    # => #<HTTP::Security::Headers::Pragma:0x00000002ccc5e8 @no_cache=true>
 
     headers.strict_transport_security
-    # => {:max_age=>631138519}
+    # => #<HTTP::Security::Headers::StrictTransportSecurity:0x00000002c928c0 @max_age=631138519, @include_sub_domains=nil>
 
     headers.x_content_type_options
-    # => {:nosniff=>true}
+    # => #<HTTP::Security::Headers::XContentTypeOptions:0x00000002a46e40 @no_sniff=true>
 
     headers.x_frame_options
-    # => {:sameorigin=>true}
+    # => #<HTTP::Security::Headers::XFrameOptions:0x000000028163c8 @deny=nil, @same_origin=true, @allow_from=nil, @allow_all=nil>
 
     headers.x_permitted_cross_domain_policies
-    # => 
+    # => nil
 
     headers.x_xss_protection
-    # => {:enabled=>true, :mode=>"block"@8}
+    # => #<HTTP::Security::Headers::XXSSProtection:0x0000000297a408 @enabled=true, @mode="block"@8, @report=nil>
 
 Requirements
 ------------
