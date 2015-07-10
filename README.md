@@ -65,6 +65,7 @@ Currently parsed security headers are:
 
 ## Requirements
 
+* [ruby] >= 1.9.1
 * [parslet] ~> 1.5
 
 ## Install
@@ -85,4 +86,5 @@ To test the parser against the Alexa Top 100:
 
 See the {file:LICENSE.txt} file.
 
+[ruby]: https://www.ruby-lang.org/
 [parslet]: http://kschiess.github.io/parslet/
