@@ -10,16 +10,19 @@ Security Headers relies on [parslet] for constructing its parsing grammar.
 
 Currently parsed security headers are:
 
-* X-Frame-Options
-* Strict-Transport-Security
-* X-Content-Type-Options
-* X-XSS-Protection
-* Cache-Control
-* Pragma
-* Expires
-* X-Permitted-Cross-Domain-Policies
-* Content-Security-Policy
-* Content-Security-Policy-Report-Only
+* `Cache-Control`
+* `Content-Security-Policy`
+* `Content-Security-Policy-Report-Only`
+* `Expires`
+* `Pragma`
+* `Public-Key-Pins`
+* `Public-Key-Pins-Report-Only`
+* `Set-Cookie`
+* `Strict-Transport-Security`
+* `X-Content-Type-Options`
+* `X-Frame-Options`
+* `X-Permitted-Cross-Domain-Policies`
+* `X-XSS-Protection
 
 ## Example
 
