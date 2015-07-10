@@ -10,45 +10,71 @@ module HTTP
       include Enumerable
 
       # The parsed `Cache-Control` header.
+      #
+      # @return [Headers::CacheControl]
       attr_reader :cache_control
 
       # The parsed `Content-Security-Policy` header.
+      #
+      # @return [Headers::ContentSecurityPolicy]
       attr_reader :content_security_policy
 
       # The parsed `Content-Security-Policy-Report-Only` header.
+      #
+      # @return [Headers::ContentSecurityPolicyReportOnly]
       attr_reader :content_security_policy_report_only
 
       # The parsed `Expires` header.
+      #
+      # @return [HTTPDate]
       attr_reader :expires
 
       # The parsed `Pragma` header.
+      #
+      # @return [Headers::Pagram]
       attr_reader :pragma
 
       # The parsed `Set-Cookie` header.
+      #
+      # @return [Headers::SetCookie]
       attr_reader :set_cookie
 
       # The parsed `Strict-Transport-Security` header.
+      #
+      # @return [Headers::StrictTransportSecurity]
       attr_reader :strict_transport_security
 
       # The parsed `Public-Key-Pins` header.
+      #
+      # @return [Headers::PublicKeyPin]
       attr_reader :public_key_pins
 
       # The parsed `Public-Key-Pins-Report-Only` header.
+      #
+      # @return [Headers::PublicKeyPinsReportOnly]
       attr_reader :public_key_pins_report_only
 
       # The parsed `X-Content-Type-Options` header.
+      #
+      # @return [Headers::XContentTypeOptions]
       attr_reader :x_content_type_options
       alias content_type_options x_content_type_options
 
       # The parsed `X-Frame-Options` header.
+      #
+      # @return [Headers::XFrameOptions]
       attr_reader :x_frame_options
       alias frame_options x_frame_options
 
       # The parsed `X-Permitted-Cross-Domain-Policies` header.
+      #
+      # @return [Headers::XPermittedCrossDomainPolicies]
       attr_reader :x_permitted_cross_domain_policies
       alias permitted_cross_domain_policies x_permitted_cross_domain_policies
 
       # The parsed `X-XSS-Protection` header.
+      #
+      # @return [Headers::XXssProtection]
       attr_reader :x_xss_protection
       alias xss_protection x_xss_protection
 
