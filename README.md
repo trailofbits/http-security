@@ -59,18 +59,15 @@ Currently parsed security headers are:
     headers.x_xss_protection
     # => #<HTTP::Security::Headers::XXSSProtection:0x0000000297a408 @enabled=true, @mode="block"@8, @report=nil>
 
-Requirements
-------------
+## Requirements
 
 * [parslet] ~> 1.5
 
-Install
--------
+## Install
 
     $ gem install http-security
 
-Testing
--------
+## Testing
 
 To run the RSpec tests:
 
@@ -80,8 +77,7 @@ To test the parser against the Alexa Top 100:
 
     $ rake spec:gauntlet
 
-License
--------
+## License
 
 See the {file:LICENSE.txt} file.
 
