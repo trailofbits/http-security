@@ -1,5 +1,9 @@
 # HTTP Security
 
+* [Source](https://github.com/trailofbits/http-security)
+* [Issues](https://github.com/trailofbits/http-security/issues)
+* [Documentation](https://rubydoc.info/gems/http-security/frames)
+
 [![Code Climate](https://codeclimate.com/github/trailofbits/http-security.png)](https://codeclimate.com/github/trailofbits/http-security) [![Build Status](https://travis-ci.org/trailofbits/http-security.svg)](https://travis-ci.org/trailofbits/http-security) [![Test Coverage](https://codeclimate.com/github/trailofbits/http-security/badges/coverage.svg)](https://codeclimate.com/github/trailofbits/http-security)
 
 Security Headers is a parser for security-relevant HTTP headers. Each header
