@@ -26,7 +26,7 @@ Currently parsed security headers are:
 * `X-Content-Type-Options`
 * `X-Frame-Options`
 * `X-Permitted-Cross-Domain-Policies`
-* `X-XSS-Protection
+* `X-XSS-Protection`
 
 ## Example
 
