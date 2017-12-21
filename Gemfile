@@ -11,7 +11,7 @@ group :development do
   gem 'rspec', '~> 3.0'
 
   gem 'kramdown'
-  gem 'yard', '~> 0.8'
+  gem 'yard', '~> 0.9'
 end
 
 gem "codeclimate-test-reporter", group: :test, require: nil
