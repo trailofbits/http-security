@@ -33,7 +33,7 @@ module HTTP
 
         rule(:csp_entry) do
           (csp_directive.as(:key) >> wsp >> source_list.as(:value)) |
-          report_uri                                                 |
+          report_uri                                                |
           sandbox
         end
 
