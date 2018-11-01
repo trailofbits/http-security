@@ -2,15 +2,13 @@ env:
   global:
     - CC_TEST_REPORTER_ID=4e8013e9105e3dd8153da54825ce8fab58c7408dce36fa351ef35c51bb9b0b05
 language: ruby
-sudo: false
 rvm:
-- 1.9.3
-- 2.0
-- 2.1
-- ruby-head
-- jruby-19mode
-- jruby-head
-- rbx-2
+  - 2.2
+  - 2.3
+  - 2.4
+  - 2.5
+  - ruby-head
+  - jruby-head
 matrix:
   allow_failures:
   - rvm: rbx-2
