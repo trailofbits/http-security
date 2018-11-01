@@ -1,3 +1,6 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=4e8013e9105e3dd8153da54825ce8fab58c7408dce36fa351ef35c51bb9b0b05
 language: ruby
 sudo: false
 rvm:
@@ -13,9 +16,14 @@ matrix:
   - rvm: rbx-2
   - rvm: jruby-19mode
   - rvm: jruby-head
-addons:
-  code_climate:
-    repo_token: 4e8013e9105e3dd8153da54825ce8fab58c7408dce36fa351ef35c51bb9b0b05
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+script:
+  - bundle exec rake spec
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 notifications:
   slack:
     secure: awgcYPnPALqyAn3H58d+qzQYezzEyuqr71GmU9AsXuOa3sGM1JVqmUOqgoXeykBcV8EV5DEO+65fCkc+GnBxyPjnyYyvzW7VEcj3xQdxyVgn9fK0a76Mp+ywoWOPG7t4Z8dIK3PCT12QO+XgGWiLA9YG10eRtGRRD1V2PCKv41Y=

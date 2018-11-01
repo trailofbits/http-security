@@ -14,4 +14,7 @@ group :development do
   gem 'yard', '~> 0.9'
 end
 
-gem "codeclimate-test-reporter", group: :test, require: nil
+group :test do
+  gem 'simplecov', require: nil
+  gem 'codeclimate-test-reporter', '~> 1.0.0', require: nil
+end
