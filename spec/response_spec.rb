@@ -19,7 +19,7 @@ describe Response do
       "Public-Key-Pins" => "pin-sha256=\"j+rQEAhMMJvg6xmn0rzlpe4WZgr7dz9tc7bVhUTsY4E=\"; pin-sha256=\"klO23nT2ehFDXCfx3eHTDRESMz3asj1muO+4aIdjiuY=\"; pin-sha256=\"6X0iNAQtPIjXKEVcqZBwyMcRwq1yW60549axatu3oDE=\"; max-age=0; includeSubDomains",
       "Public-Key-Pins-Report-Only" => "pin-sha256=\"j+rQEAhMMJvg6xmn0rzlpe4WZgr7dz9tc7bVhUTsY4E=\"; pin-sha256=\"klO23nT2ehFDXCfx3eHTDRESMz3asj1muO+4aIdjiuY=\"; pin-sha256=\"6X0iNAQtPIjXKEVcqZBwyMcRwq1yW60549axatu3oDE=\"; max-age=0; includeSubDomains",
       "Server" => "tsa_b",
-      "Set-Cookie" => 
+      "Set-Cookie" =>
       "_twitter_sess=BAh7CSIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%250ASGFzaHsABjoKQHVzZWR7ADoPY3JlYXRlZF9hdGwrCOzcmMpJAToMY3NyZl9p%250AZCIlYmEzNTQ5YzM0MzYwZjAzZWMwMTFmZDY3MzVhMjE0MzM6B2lkIiUxMzI3%250AY2M1OWIyYzM3N2IzMmYxZWZiNmJlN2ZmYzdjZQ%253D%253D--09c51d06332d2b4cf102948a3f0491131ed952fa; Path=/; Domain=.twitter.com; Secure; HTTPOnly, guest_id=v1%3A141644325604142464; Domain=.twitter.com; Path=/; Expires=Sat, 19 Nov 2016 00:27:36 GMT",
         "Status" => "200 OK",
         "Strict-Transport-Security" => "max-age=631138519",
@@ -160,7 +160,7 @@ describe Response do
       require 'net/http'
 
       path = File.expand_path('../data/alexa.csv', __FILE__)
-      csv  = CSV.new(open(path), headers: false)
+      csv  = CSV.new(File.open(path), headers: false)
 
       csv.each do |row|
         rank, domain = row[0].to_i, row[1].downcase
